@@ -1,0 +1,154 @@
+---
+title: "03 Vectors"
+author: "Toshi"
+output: html_document
+---
+
+# 1. Introduction
+
+Vectors are one of the most important data structures in R.
+
+A vector is a collection of values of the same type.
+
+Examples:
+
+-   numeric vector
+-   character vector
+-   logical vector
+
+# 2. Creating Vectors
+
+Use `c()` to combine values into a vector.
+
+```{r}
+numbers <- c(10, 20, 30, 40, 50)
+fruits <- c("apple", "banana", "orange")
+flags <- c(TRUE, FALSE, TRUE)
+
+numbers
+fruits
+flags
+```
+
+# 3. Checking the Type of a Vector
+
+Use `class()` to check the type.
+
+```{r}
+class(numbers)
+class(fruits)
+class(flags)
+```
+
+# 4. Length of a Vector
+
+Use `length()` to count the number of elements.
+
+```{r}
+length(numbers)
+length(fruits)
+length(flags)
+```
+
+# 5. Basic Statistics for Numeric Vectors
+
+You can apply summary functions to numeric vectors.
+
+```{r}
+sum(numbers)
+mean(numbers)
+max(numbers)
+min(numbers)
+```
+
+# 6. Vectorized Operations
+
+R can apply operations to all elements of a vector at once.
+
+```{r}
+numbers + 5
+numbers * 2
+numbers / 10
+```
+
+# 7. Accessing Elements
+
+Use square brackets `[]` to access elements.
+
+```{r}
+numbers[1]
+numbers[3]
+fruits[2]
+```
+
+# 8. Accessing Multiple Elements
+
+You can extract multiple elements by passing a vector of positions.
+
+```{r}
+numbers[c(1, 3, 5)]
+fruits[c(1, 2)]
+```
+
+# 9. Excluding Elements
+
+Use negative indices to remove elements.
+
+```{r}
+numbers[-1]
+numbers[-c(2, 4)]
+```
+
+# 10. Creating Sequences
+
+R provides convenient ways to create sequential vectors.
+
+```{r}
+1:10
+seq(0, 20, by = 5)
+```
+
+# 11. Repeating Values
+
+Use `rep()` to repeat values.
+
+```{r}
+rep(1, 5)
+rep(c("A", "B"), 3)
+```
+
+# 12. Logical Filtering
+
+Logical conditions can be used to filter values.
+
+```{r}
+numbers > 25
+numbers[numbers > 25]
+```
+
+# 13. Combining Vectors
+
+You can combine vectors using `c()`.
+
+```{r}
+more_numbers <- c(60, 70)
+all_numbers <- c(numbers, more_numbers)
+
+all_numbers
+```
+
+# 14. Summary
+
+In this chapter, we learned:
+
+-   how to create vectors
+-   how to check vector types
+-   how to count elements
+-   how to calculate summaries
+-   how to extract values
+-   how to filter values
+-   how to create sequences and repeated values
+
+Next chapter:
+
+**04_data_frame.Rmd**

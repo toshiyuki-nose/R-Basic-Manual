@@ -1,0 +1,120 @@
+---
+title: "02 Basic Syntax"
+author: "Toshi"
+output: html_document
+---
+
+# 1. Introduction
+
+In this chapter, we learn the basic syntax of R.
+
+Topics covered:
+
+-   Comments
+-   Assignment
+-   Arithmetic operations
+-   Basic object types
+-   Checking object types
+-   Listing and removing objects
+
+# 2. Comments
+
+Comments in R start with `#`.
+
+They are used to explain the code and are ignored during execution.
+
+```{r}
+# This is a comment
+print("Hello from R")
+```
+
+# 3. Assignment
+
+In R, values are usually assigned with `<-`.
+
+```{r}
+x <- 10
+y <- 3
+
+x
+y
+```
+
+# 4. Arithmetic Operations
+
+R can perform basic arithmetic operations.
+
+```{r}
+x + y
+x - y
+x * y
+x / y
+x ^ y
+```
+
+# 5. Character and Logical Values
+
+R can store text and logical values.
+
+```{r}
+name <- "Toshi"
+is_learning_r <- TRUE
+
+name
+is_learning_r
+```
+
+# 6. Checking Object Types
+
+Use `class()` to check the type of an object.
+
+```{r}
+class(x)
+class(name)
+class(is_learning_r)
+```
+
+# 7. Using print()
+
+`print()` displays the value of an object clearly.
+
+```{r}
+print(x)
+print(name)
+print(is_learning_r)
+```
+
+# 8. Listing Objects
+
+Use `ls()` to see the objects currently stored in the environment.
+
+```{r}
+ls()
+```
+
+# 9. Removing Objects
+
+Use `rm()` to remove objects you no longer need.
+
+```{r}
+temp_value <- 100
+ls()
+
+rm(temp_value)
+ls()
+```
+
+# 10. Summary
+
+In this chapter, we learned:
+
+-   how to write comments
+-   how to assign values
+-   how to do arithmetic
+-   how to create basic objects
+-   how to check object types
+-   how to list and remove objects
+
+Next chapter:
+
+**03_vectors.Rmd**

@@ -3,49 +3,27 @@ title: "01_r_overview"
 output: html_document
 ---
 
-# docs/01_r_overview.Rmd
-
 # 1. What is R?
 
 R is a programming language and environment designed for statistical computing and data analysis.
 
 It is widely used in:
 
--   Data analysis
--   Statistics
--   Machine learning
--   Data visualization
--   Research and academia
-
-Key features of R:
-
--   Powerful statistical functions
--   Rich visualization libraries
--   Large ecosystem of packages
--   Open source
+- Data analysis
+- Statistics
+- Machine learning
+- Data visualization
+- Research and academia
 
 # 2. Running R Code
 
-R code can be executed in several ways:
-
--   R console
--   RStudio
--   R scripts (`.R`)
--   R Markdown (`.Rmd`)
-
-Example:
-
-```{r (Hello R)}
+```{r}
 print("Hello R")
 ```
 
-When this document is rendered, the code will run and display the result.
-
 # 3. Basic Arithmetic
 
-R can be used like a calculator.
-
-```{r calculator}
+```{r}
 1 + 1
 10 - 3
 5 * 4 
@@ -54,9 +32,7 @@ R can be used like a calculator.
 
 # 4. Creating Variables
 
-In R, variables are usually assigned using `<-`.
-
-```{r (using `<-`)}
+```{r}
 x <- 10
 y <- 20
 
@@ -66,16 +42,14 @@ y
 
 # 5. Simple Calculation
 
-```{r Simple Calculation}
+```{r}
 result <- x + y
 result
 ```
 
 # 6. Data Types
 
-R has several basic data types.
-
-```{r data types}
+```{r}
 num <- 10
 text <- "Hello"
 flag <- TRUE
@@ -87,30 +61,19 @@ class(flag)
 
 # 7. Getting Help
 
-R has built-in help documentation.
-
 ```{r eval=FALSE}
 help(mean)
 ?mean
 ```
 
-You can also run examples from documentation.
-
-```{r eval=FALSE}
-example(mean)
-```
-
 # 8. Summary
 
-In this chapter we learned:
-
--   What R is
--   How to run R code
--   Basic arithmetic
--   Variables
--   Data types
--   How to access help
+- What R is
+- Basic arithmetic
+- Variables
+- Data types
+- Help system
 
 Next chapter:
 
-**02_basic_syntax.R**
+**02_basic_syntax.Rmd**
