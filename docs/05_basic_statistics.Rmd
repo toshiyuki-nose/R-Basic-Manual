@@ -1,0 +1,129 @@
+---
+title: "05_basic_statistics"
+output: html_document
+---
+
+# 1. Introduction
+
+In this chapter, we learn basic statistical functions in R.
+
+These functions help us summarize and understand numeric data.
+
+# 2. Prepare Sample Data
+
+```{r}
+scores <- c(85, 90, 78, 92, 88, 76, 95, 89, 84, 91)
+
+scores
+```
+
+# 3. Basic Summary Values
+
+R provides simple functions to calculate key summary values.
+
+```{r}
+sum(scores)
+mean(scores)
+median(scores)
+min(scores)
+max(scores)
+range(scores)
+```
+
+# 4. Measure of Spread
+
+We can also measure how spread out the data is.
+
+```{r}
+var(scores)
+sd(scores)
+```
+
+# 5. Quantiles
+
+Quantiles divide data into parts.
+
+```{r}
+quantile(scores)
+quantile(scores, probs = c(0.25, 0.5, 0.75))
+```
+
+# 6. Sorting Values
+
+Sorting helps us inspect the order of values.
+
+```{r}
+sort(scores)
+sort(scores, decreasing = TRUE)
+```
+
+# 7. Counting Values
+
+Use `length()` to count the number of elements.
+
+```{r}
+length(scores)
+```
+
+# 8. Summary Function
+
+`summary()` gives a quick overview of numeric data.
+
+```{r}
+summary(scores)
+```
+
+# 9. Basic Statistics on a Data Frame Column
+
+Statistical functions are often applied to one column of a data frame.
+
+```{r}
+students <- data.frame(
+  id = c(1, 2, 3, 4, 5),
+  name = c("Alice", "Bob", "Carol", "David", "Emma"),
+  score = c(85, 90, 78, 92, 88)
+)
+
+students
+
+mean(students$score)
+summary(students$score)
+```
+
+# 10. Logical Conditions
+
+We can also check which values satisfy a condition.
+
+```{r}
+scores > 85
+scores[scores > 85]
+```
+
+# 11. Missing Values
+
+Sometimes data contains missing values (`NA`).
+
+```{r}
+scores_with_na <- c(85, 90, NA, 92, 88)
+
+scores_with_na
+mean(scores_with_na)
+mean(scores_with_na, na.rm = TRUE)
+summary(scores_with_na)
+```
+
+`na.rm = TRUE` means "remove missing values before calculation".
+
+# 12. Summary
+
+In this chapter, we learned:
+
+-   how to calculate mean, median, min, max
+-   how to measure spread with variance and standard deviation
+-   how to calculate quantiles
+-   how to use summary()
+-   how to handle missing values with `na.rm = TRUE`
+
+Next chapter:
+
+**06_visualization.Rmd**

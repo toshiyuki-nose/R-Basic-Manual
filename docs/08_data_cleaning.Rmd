@@ -1,0 +1,157 @@
+---
+title: "08_data_cleaning"
+output: html_document
+---
+
+# 1. Introduction
+
+In real-world analysis, raw data is often messy.
+
+Typical problems include:
+
+-   missing values
+-   extra spaces
+-   inconsistent text
+-   wrong data types
+
+In this chapter, we learn how to clean such data in R.
+
+# 2. Create Sample Dirty Data
+
+```{r}
+sales_dirty <- data.frame(
+  id = c(1, 2, 3, 4, 5),
+  product = c(" Coffee", "Tea ", "Bread", NA, "Cake"),
+  sales = c("450", "300", "280", "520", NA),
+  quantity = c(3, 2, NA, 2, 4),
+  region = c("tokyo", "Osaka", "TOKYO", "Nagoya", "osaka"),
+  stringsAsFactors = FALSE
+)
+
+sales_dirty
+```
+
+# 3. Inspect the Data
+
+We first check the structure and summary.
+
+```{r}
+str(sales_dirty)
+summary(sales_dirty)
+```
+
+# 4. Check Missing Values
+
+Use `is.na()` to detect missing values.
+
+```{r}
+is.na(sales_dirty)
+colSums(is.na(sales_dirty))
+```
+
+`colSums(is.na(...))` shows how many missing values each column has.
+
+# 5. Remove Rows with Missing Values
+
+Use `na.omit()` to remove rows containing missing values.
+
+```{r}
+sales_no_na <- na.omit(sales_dirty)
+sales_no_na
+```
+
+# 6. Trim Extra Spaces
+
+Use `trimws()` to remove extra spaces from text.
+
+```{r}
+sales_dirty$product <- trimws(sales_dirty$product)
+sales_dirty
+```
+
+# 7. Convert Text to Numeric
+
+Sometimes numeric values are stored as text.
+
+```{r}
+sales_dirty$sales <- as.numeric(sales_dirty$sales)
+sales_dirty
+```
+
+# 8. Standardize Text Values
+
+Text values may have inconsistent capitalization.
+
+```{r}
+sales_dirty$region <- tolower(sales_dirty$region)
+sales_dirty
+```
+
+# 9. Replace Values
+
+After standardizing case, we can replace values with consistent labels.
+
+```{r}
+sales_dirty$region[sales_dirty$region == "tokyo"] <- "Tokyo"
+sales_dirty$region[sales_dirty$region == "osaka"] <- "Osaka"
+sales_dirty$region[sales_dirty$region == "nagoya"] <- "Nagoya"
+
+sales_dirty
+```
+
+# 10. Fill Missing Numeric Values
+
+We can replace missing numeric values when needed.
+
+```{r}
+sales_dirty$quantity[is.na(sales_dirty$quantity)] <- 0
+sales_dirty
+```
+
+# 11. Create a New Flag Column
+
+We can create a column to mark missing values.
+
+```{r}
+sales_dirty$is_missing_sales <- is.na(sales_dirty$sales)
+sales_dirty
+```
+
+# 12. Create a Category by Condition
+
+Use `ifelse()` to create categories.
+
+```{r}
+sales_dirty$sales_level <- ifelse(
+  sales_dirty$sales >= 400,
+  "High",
+  "Low"
+)
+
+sales_dirty
+```
+
+# 13. Recheck the Cleaned Data
+
+After cleaning, inspect the data again.
+
+```{r}
+str(sales_dirty)
+summary(sales_dirty)
+```
+
+# 14. Summary
+
+In this chapter, we learned:
+
+-   how to detect missing values
+-   how to remove rows with missing values
+-   how to trim spaces
+-   how to convert text to numeric
+-   how to standardize text values
+-   how to replace values
+-   how to create new columns with conditions
+
+Next chapter:
+
+**09_next_steps.Rmd**

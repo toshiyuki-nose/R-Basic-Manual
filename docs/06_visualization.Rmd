@@ -1,0 +1,129 @@
+---
+title: "06_visualization"
+output: html_document
+---
+
+# 1. Introduction
+
+In this chapter, we learn how to visualize data in R.
+
+Visualization helps us understand patterns and trends in data.
+
+# 2. Prepare Sample Data
+
+```{r}
+scores <- c(85, 90, 78, 92, 88, 76, 95, 89, 84, 91)
+scores
+```
+
+# 3. Scatter Plot
+
+Use `plot()` to create a scatter plot.
+
+```{r}
+x <- 1:length(scores)
+
+plot(x, scores)
+```
+
+# 4. Customize Plot
+
+You can add titles and labels.
+
+```{r}
+plot(
+  x, scores,
+  main = "Score Distribution",
+  xlab = "Index",
+  ylab = "Score",
+  pch = 19
+)
+```
+
+# 5. Line Plot
+
+Use `type = "l"` to draw lines.
+
+```{r}
+plot(
+  x, scores,
+  type = "l",
+  main = "Score Trend",
+  xlab = "Index",
+  ylab = "Score"
+)
+```
+
+# 6. Histogram
+
+Use `hist()` to see the distribution of data.
+
+```{r}
+hist(
+  scores,
+  main = "Histogram of Scores",
+  xlab = "Score",
+  col = "lightblue"
+)
+```
+
+# 7. Boxplot
+
+Use `boxplot()` to see summary statistics visually.
+
+```{r}
+boxplot(
+  scores,
+  main = "Boxplot of Scores",
+  col = "lightgreen"
+)
+```
+
+# 8. Barplot
+
+Use `barplot()` for categorical data.
+
+```{r}
+counts <- table(c("A", "B", "A", "C", "B", "A"))
+
+barplot(
+  counts,
+  main = "Category Count",
+  col = "orange"
+)
+```
+
+# 9. Plot from Data Frame
+
+You can plot values directly from a data frame.
+
+```{r}
+students <- data.frame(
+  id = 1:5,
+  score = c(85, 90, 78, 92, 88)
+)
+
+plot(
+  students$id,
+  students$score,
+  main = "Student Scores",
+  xlab = "ID",
+  ylab = "Score",
+  pch = 19
+)
+```
+
+# 10. Summary
+
+In this chapter, we learned:
+
+-   how to create scatter plots
+-   how to customize plots
+-   how to create line plots
+-   how to create histograms
+-   how to create boxplots
+-   how to create barplots
+
+Next chapter:
+
+**07_data_analysis.Rmd**

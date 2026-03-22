@@ -1,0 +1,136 @@
+---
+title: "04_data_frame"
+output: html_document
+---
+
+# 1. What is a Data Frame?
+
+A data frame is one of the most important data structures in R.
+
+It looks like a table:
+
+-   rows = observations
+-   columns = variables
+
+A data frame can store different types of data in different columns.
+
+# 2. Creating a Data Frame
+
+Use `data.frame()` to create a table-like object.
+
+```{r}
+students <- data.frame(
+  id = c(1, 2, 3, 4, 5),
+  name = c("Alice", "Bob", "Carol", "David", "Emma"),
+  age = c(20, 21, 19, 22, 20),
+  score = c(85, 90, 78, 92, 88)
+)
+
+students
+```
+
+# 3. Checking the Structure
+
+You can inspect the structure of a data frame using several functions.
+
+```{r}
+class(students)
+str(students)
+dim(students)
+nrow(students)
+ncol(students)
+names(students)
+```
+
+# 4. Accessing Columns
+
+You can access columns by name or position.
+
+```{r}
+students$name
+students$score
+students[, "age"]
+students[, 4]
+```
+
+# 5. Accessing Rows
+
+You can access rows using row numbers.
+
+```{r}
+students[1, ]
+students[3, ]
+students[1:3, ]
+```
+
+# 6. Accessing Specific Rows and Columns
+
+You can choose both rows and columns at the same time.
+
+```{r}
+students[1:3, c("name", "score")]
+students[, c("name", "age")]
+```
+
+# 7. Filtering Rows
+
+You can filter rows by conditions.
+
+```{r}
+students[students$score >= 85, ]
+students[students$age == 20, ]
+```
+
+# 8. Adding a New Column
+
+You can add a new column using `$`.
+
+```{r}
+students$passed <- students$score >= 80
+students
+```
+
+# 9. Creating a Calculated Column
+
+A new column can be created from existing columns.
+
+```{r}
+students$score_plus_5 <- students$score + 5
+students
+```
+
+# 10. Summary Statistics
+
+You can calculate summary statistics for numeric columns.
+
+```{r}
+mean(students$score)
+max(students$score)
+min(students$score)
+summary(students)
+```
+
+# 11. Sorting Rows
+
+Use `order()` to sort a data frame.
+
+```{r}
+students[order(students$score), ]
+students[order(-students$score), ]
+```
+
+# 12. Summary
+
+In this chapter, we learned:
+
+-   what a data frame is
+-   how to create a data frame
+-   how to inspect its structure
+-   how to access rows and columns
+-   how to filter rows
+-   how to add new columns
+-   how to summarize and sort data
+
+Next chapter:
+
+**05_basic_statistics.Rmd**

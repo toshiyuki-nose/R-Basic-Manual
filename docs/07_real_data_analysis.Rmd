@@ -1,0 +1,137 @@
+---
+title: "07_real_data_analysis"
+output: html_document
+---
+
+# 1. Introduction
+
+In this chapter, we practice a simple real data analysis workflow in R.
+
+The workflow is:
+
+1.  read a CSV file
+2.  inspect the data
+3.  summarize the data
+4.  visualize the data
+
+# 2. Read CSV
+
+We use `read.csv()` to load a CSV file.
+
+```{r}
+sales_data <- read.csv("data/sample_sales.csv", stringsAsFactors = FALSE)
+
+sales_data
+```
+
+# 3. Inspect Data
+
+Before analysis, it is important to understand the structure of the data.
+
+```{r}
+head(sales_data)
+str(sales_data)
+dim(sales_data)
+names(sales_data)
+summary(sales_data)
+```
+
+# 4. Basic Summaries
+
+We can calculate basic statistics for numeric columns.
+
+```{r}
+sum(sales_data$sales)
+mean(sales_data$sales)
+max(sales_data$sales)
+min(sales_data$sales)
+```
+
+# 5. Filter Rows
+
+We can extract rows that match specific conditions.
+
+```{r}
+sales_data[sales_data$region == "Tokyo", ]
+sales_data[sales_data$category == "Beverage", ]
+```
+
+# 6. Aggregate by Category
+
+We can summarize values by category using `aggregate()`.
+
+```{r}
+aggregate(sales ~ category, data = sales_data, sum)
+aggregate(quantity ~ category, data = sales_data, sum)
+```
+
+# 7. Aggregate by Region
+
+We can also summarize sales by region.
+
+```{r}
+aggregate(sales ~ region, data = sales_data, sum)
+```
+
+# 8. Count by Product
+
+Use `table()` to count occurrences of values.
+
+```{r}
+table(sales_data$product)
+```
+
+# 9. Visualize Data
+
+We can create simple charts from real data.
+
+```{r}
+hist(
+  sales_data$sales,
+  main = "Histogram of Sales",
+  xlab = "Sales",
+  col = "lightblue"
+)
+
+boxplot(
+  sales_data$sales,
+  main = "Boxplot of Sales",
+  col = "lightgreen"
+)
+
+barplot(
+  table(sales_data$category),
+  main = "Count by Category",
+  col = "orange"
+)
+```
+
+# 10. Visualize Aggregated Data
+
+We can visualize summarized data as well.
+
+```{r}
+sales_by_region <- aggregate(sales ~ region, data = sales_data, sum)
+
+barplot(
+  sales_by_region$sales,
+  names.arg = sales_by_region$region,
+  main = "Total Sales by Region",
+  col = "skyblue"
+)
+```
+
+# 11. Summary
+
+In this chapter, we learned:
+
+-   how to read a CSV file
+-   how to inspect data
+-   how to summarize numeric columns
+-   how to filter rows
+-   how to aggregate values by group
+-   how to create basic charts from real data
+
+Next chapter:
+
+**08_data_cleaning.Rmd**
