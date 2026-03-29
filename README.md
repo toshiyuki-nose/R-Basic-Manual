@@ -90,7 +90,7 @@ R-Basic-Manual/
 
 ## ✍ Author
 
-Toshi
+Toshiyuki-Nose
 
 ---
 
