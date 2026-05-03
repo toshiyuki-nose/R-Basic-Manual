@@ -81,7 +81,6 @@ R-Basic-Manual/
 
 ## 💡 Future Plans
 
-* ggplot2 visualization
 * Data manipulation (dplyr)
 * Advanced analysis
 * R Shiny applications
@@ -98,3 +97,4 @@ Toshiyuki-Nose
 
 This repository is continuously evolving as part of my learning journey.
 Feel free to explore, learn, and build upon it.
+Also, I used generative AI to create this repository.
