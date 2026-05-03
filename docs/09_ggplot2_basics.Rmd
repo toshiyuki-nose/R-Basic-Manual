@@ -1,0 +1,139 @@
+---
+title: "09_ggplot2_basics"
+output: html_document
+---
+
+# 1. Introduction
+
+In this chapter, we learn basic data visualization using `ggplot2`.
+
+`ggplot2` is one of the most popular visualization packages in R.
+
+It allows us to build charts by combining layers.
+
+# 2. Load ggplot2
+
+If `ggplot2` is not installed, install it first.
+
+```{r eval=FALSE}
+install.packages("ggplot2")
+```
+
+Then load the package.
+
+```{r}
+library(ggplot2)
+```
+
+# 3. Create Sample Data
+
+```{r}
+students <- data.frame(
+  id = 1:8,
+  name = c("Alice", "Bob", "Carol", "David", "Emma", "Frank", "Grace", "Henry"),
+  score = c(85, 90, 78, 92, 88, 76, 95, 89),
+  study_hours = c(3, 4, 2, 5, 4, 2, 6, 5),
+  class = c("A", "A", "B", "B", "A", "B", "A", "B")
+)
+
+students
+```
+
+# 4. Basic Scatter Plot
+
+A scatter plot shows the relationship between two numeric variables.
+
+```{r}
+ggplot(students, aes(x = study_hours, y = score)) +
+  geom_point()
+```
+
+# 5. Scatter Plot with Color
+
+We can use `color` to separate groups.
+
+```{r}
+ggplot(students, aes(x = study_hours, y = score, color = class)) +
+  geom_point()
+```
+
+# 6. Add Title and Labels
+
+Use `labs()` to add a title and axis labels.
+
+```{r}
+ggplot(students, aes(x = study_hours, y = score, color = class)) +
+  geom_point() +
+  labs(
+    title = "Study Hours and Scores",
+    x = "Study Hours",
+    y = "Score",
+    color = "Class"
+  )
+```
+
+# 7. Bar Chart
+
+A bar chart is useful for counting categories.
+
+```{r}
+ggplot(students, aes(x = class)) +
+  geom_bar()
+```
+
+# 8. Boxplot
+
+A boxplot helps us compare distributions between groups.
+
+```{r}
+ggplot(students, aes(x = class, y = score)) +
+  geom_boxplot()
+```
+
+# 9. Histogram
+
+A histogram shows the distribution of numeric data.
+
+```{r}
+ggplot(students, aes(x = score)) +
+  geom_histogram(binwidth = 5)
+```
+
+# 10. Add a Smooth Line
+
+We can add a regression line using `geom_smooth()`.
+
+```{r}
+ggplot(students, aes(x = study_hours, y = score)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+# 11. ggplot2 Basic Structure
+
+The basic structure of ggplot2 is:
+
+``` r
+ggplot(data, aes(x = column1, y = column2)) +
+  geom_xxx()
+```
+
+Main parts:
+
+-   `ggplot()` : specify data
+-   `aes()` : define mapping
+-   `geom_*()` : choose chart type
+-   `labs()` : add labels
+
+# 12. Summary
+
+In this chapter, we learned:
+
+-   how to load ggplot2
+-   how to create scatter plots
+-   how to use color
+-   how to add titles and labels
+-   how to create bar charts
+-   how to create boxplots
+-   how to create histograms
+-   how to add a smooth line
