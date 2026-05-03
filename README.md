@@ -28,7 +28,8 @@ Instead of just learning syntax, it focuses on:
 05 Basic Statistics  
 06 Visualization  
 07 Real Data Analysis  
-08 Data Cleaning  
+08 Data Cleaning
+09 Using ggplot2
 ```
 
 Each chapter includes:
