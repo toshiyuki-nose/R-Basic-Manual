@@ -28,65 +28,23 @@ Each chapter contains:
 
 ---
 
-# Learning Roadmap
+## 🧭 Learning Flow
 
-## Part 1. Foundations
+```text
+01 Hello R  
+02 Basic Syntax  
+03 Vectors  
+04 Data Frame  
+05 Basic Statistics  
+06 Visualization  
+07 Real Data Analysis  
+08 Data Cleaning  
+```
 
-Build a solid foundation in R and learn the basic workflow of data analysis.
+Each chapter includes:
 
-| Chapter | Topic | Status |
-|---------|------|--------|
-| 01 | Hello R | ✅ |
-| 02 | Basic Syntax | ✅ |
-| 03 | Vectors | ✅ |
-| 04 | Data Frame | ✅ |
-| 05 | Basic Statistics | ✅ |
-| 06 | Visualization (Base R) | ✅ |
-| 07 | Real Data Analysis | ✅ |
-| 08 | Data Cleaning | ✅ |
-| 09 | ggplot2 Basics | ✅ |
-
----
-
-## Part 2. Programming for Data Analysis
-
-Learn programming techniques that make data analysis more efficient.
-
-| Chapter | Topic | Status |
-|---------|------|--------|
-| 10 | Functions | 🚧 |
-| 11 | Program Flow | ⏳ |
-| 12 | Matrix, List and Factor | ⏳ |
-| 13 | Character Processing | ⏳ |
-| 14 | Date and Time | ⏳ |
-
----
-
-## Part 3. Data Analysis
-
-Learn practical techniques for working with real-world datasets.
-
-| Chapter | Topic | Status |
-|---------|------|--------|
-| 15 | Importing Data | ⏳ |
-| 16 | Data Manipulation with dplyr | ⏳ |
-| 17 | Data Joining and Reshaping | ⏳ |
-| 18 | Advanced ggplot2 | ⏳ |
-| 19 | Statistical Analysis | ⏳ |
-
----
-
-## Part 4. Practical R
-
-Apply R to reporting, dashboards, and databases.
-
-| Chapter | Topic | Status |
-|---------|------|--------|
-| 20 | Database Connectivity | ⏳ |
-| 21 | R Markdown | ⏳ |
-| 22 | Shiny Basics | ⏳ |
-| 23 | Built-in Datasets | ⏳ |
-| 24 | End-to-End Analysis Project | ⏳ |
+* 📘 `.Rmd` → explanation
+* 💻 `.R` → hands-on practice
 
 ---
 
