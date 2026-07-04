@@ -1,0 +1,148 @@
+---
+title: "10_functions"
+output: html_document
+---
+
+# 1. Introduction
+
+In this chapter, we learn how to create reusable functions in R.
+
+Functions help us avoid writing the same code again and again.
+
+# 2. Prepare Sample Data
+
+```{r}
+scores <- c(85, 90, 78, 92, 88)
+
+scores
+```
+
+# 3. Create a Simple Function
+
+Use `function()` to create a function.
+
+```{r}
+say_hello <- function() {
+  print("Hello from a function")
+}
+
+say_hello()
+```
+
+# 4. Function with One Argument
+
+A function can receive input values called arguments.
+
+```{r}
+calculate_average <- function(x) {
+  mean(x)
+}
+
+calculate_average(scores)
+```
+
+# 5. Return Values
+
+Use `return()` to explicitly return a result.
+
+```{r}
+calculate_total <- function(x) {
+  total <- sum(x)
+  return(total)
+}
+
+calculate_total(scores)
+```
+
+# 6. Function with Multiple Arguments
+
+A function can use multiple arguments.
+
+```{r}
+calculate_score_rate <- function(score, max_score) {
+  rate <- score / max_score
+  return(rate)
+}
+
+calculate_score_rate(85, 100)
+```
+
+# 7. Default Arguments
+
+Default arguments are used when no value is provided.
+
+```{r}
+add_bonus <- function(score, bonus = 5) {
+  score + bonus
+}
+
+add_bonus(80)
+add_bonus(80, bonus = 10)
+```
+
+# 8. Use Functions with a Data Frame
+
+Functions can also be applied to columns in a data frame.
+
+```{r}
+students <- data.frame(
+  id = c(1, 2, 3, 4, 5),
+  name = c("Alice", "Bob", "Carol", "David", "Emma"),
+  score = c(85, 90, 78, 92, 88)
+)
+
+students
+
+calculate_average(students$score)
+calculate_total(students$score)
+```
+
+# 9. Create a Reusable Summary Function
+
+We can combine multiple calculations into one function.
+
+```{r}
+summarize_scores <- function(x) {
+  result <- data.frame(
+    average = mean(x),
+    total = sum(x),
+    minimum = min(x),
+    maximum = max(x)
+  )
+  
+  return(result)
+}
+
+summarize_scores(scores)
+summarize_scores(students$score)
+```
+
+# 10. Reuse Functions with Different Data
+
+Once a function is created, it can be reused with different data.
+
+```{r}
+scores_class_a <- c(85, 90, 78, 92, 88)
+scores_class_b <- c(72, 80, 91, 86, 79)
+
+calculate_average(scores_class_a)
+calculate_average(scores_class_b)
+
+summarize_scores(scores_class_a)
+summarize_scores(scores_class_b)
+```
+
+# 11. Summary
+
+In this chapter, we learned:
+
+- how to create a function
+- how to use arguments
+- how to return values
+- how to use default arguments
+- how to create reusable analysis functions
+- how to apply functions to vectors and data frame columns
+
+Next chapter:
+
+**11_program_flow.Rmd**
