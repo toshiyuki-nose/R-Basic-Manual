@@ -1,10 +1,8 @@
 # R Basic Manual
 
-Learn R through the complete data analysis workflow—from writing your first line of code to analyzing real-world datasets.
+A hands-on guide to learning **R programming** for **data analysis**.
 
-This repository is a hands-on guide for learning R programming through practical examples, data visualization, statistical analysis, and real-world projects.
-
-Whether you're new to R or building your data analysis skills, each chapter is designed to help you learn by writing and running code.
+This repository is designed to help beginners learn R step by step through practical examples and real data analysis workflows.
 
 ---
 
@@ -28,23 +26,65 @@ Each chapter contains:
 
 ---
 
-## 🧭 Learning Flow
+# Learning Roadmap
 
-```text
-01 Hello R  
-02 Basic Syntax  
-03 Vectors  
-04 Data Frame  
-05 Basic Statistics  
-06 Visualization  
-07 Real Data Analysis  
-08 Data Cleaning  
-```
+## Part 1. Foundations
 
-Each chapter includes:
+Build a solid foundation in R and learn the basic workflow of data analysis.
 
-* 📘 `.Rmd` → explanation
-* 💻 `.R` → hands-on practice
+| Chapter | Topic | Status |
+|---------|------|--------|
+| 01 | Hello R | ✅ |
+| 02 | Basic Syntax | ✅ |
+| 03 | Vectors | ✅ |
+| 04 | Data Frame | ✅ |
+| 05 | Basic Statistics | ✅ |
+| 06 | Visualization (Base R) | ✅ |
+| 07 | Real Data Analysis | ✅ |
+| 08 | Data Cleaning | ✅ |
+| 09 | ggplot2 Basics | ✅ |
+
+---
+
+## Part 2. Programming for Data Analysis
+
+Learn programming techniques that make data analysis more efficient.
+
+| Chapter | Topic | Status |
+|---------|------|--------|
+| 10 | Functions | 🚧 |
+| 11 | Program Flow | ⏳ |
+| 12 | Matrix, List and Factor | ⏳ |
+| 13 | Character Processing | ⏳ |
+| 14 | Date and Time | ⏳ |
+
+---
+
+## Part 3. Data Analysis
+
+Learn practical techniques for working with real-world datasets.
+
+| Chapter | Topic | Status |
+|---------|------|--------|
+| 15 | Importing Data | ⏳ |
+| 16 | Data Manipulation with dplyr | ⏳ |
+| 17 | Data Joining and Reshaping | ⏳ |
+| 18 | Advanced ggplot2 | ⏳ |
+| 19 | Statistical Analysis | ⏳ |
+
+---
+
+## Part 4. Practical R
+
+Apply R to reporting, dashboards, and databases.
+
+| Chapter | Topic | Status |
+|---------|------|--------|
+| 20 | Database Connectivity | ⏳ |
+| 21 | R Markdown | ⏳ |
+| 22 | Shiny Basics | ⏳ |
+| 23 | Built-in Datasets | ⏳ |
+| 24 | End-to-End Analysis Project | ⏳ |
 
 ---
 
@@ -128,3 +168,6 @@ Toshiyuki Nose
 
 ---
 
+# License
+
+MIT License
