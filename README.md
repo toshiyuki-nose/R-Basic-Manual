@@ -52,8 +52,8 @@ Learn programming techniques that make data analysis more efficient.
 
 | Chapter | Topic | Status |
 |---------|------|--------|
-| 10 | Functions | 🚧 |
-| 11 | Program Flow | ⏳ |
+| 10 | Functions | ✅ |
+| 11 | Program Flow | ✅ |
 | 12 | Matrix, List and Factor | ⏳ |
 | 13 | Character Processing | ⏳ |
 | 14 | Date and Time | ⏳ |
