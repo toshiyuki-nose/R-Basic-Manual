@@ -1,0 +1,163 @@
+---
+title: "11_program_flow"
+output: html_document
+---
+
+# 1. Introduction
+
+In this chapter, we learn how to control the flow of a program using conditions and loops.
+
+Program flow allows us to make decisions and repeat tasks automatically.
+
+# 2. Prepare Sample Data
+
+```{r}
+scores <- c(85, 90, 78, 92, 88)
+
+scores
+```
+
+# 3. if Statement
+
+Use `if` to execute code only when a condition is TRUE.
+
+```{r}
+score <- 85
+
+if (score >= 80) {
+  print("Pass")
+}
+```
+
+# 4. if ... else
+
+Use `if ... else` to choose between two actions.
+
+```{r}
+score <- 75
+
+if (score >= 80) {
+  print("Pass")
+} else {
+  print("Fail")
+}
+```
+
+# 5. ifelse()
+
+`ifelse()` evaluates multiple values at once.
+
+```{r}
+ifelse(scores >= 80, "Pass", "Fail")
+```
+
+# 6. for Loop
+
+A `for` loop repeats code for each element.
+
+```{r}
+for (score in scores) {
+  print(score)
+}
+```
+
+# 7. while Loop
+
+A `while` loop repeats while a condition remains TRUE.
+
+```{r}
+count <- 1
+
+while (count <= 5) {
+  print(count)
+  count <- count + 1
+}
+```
+
+# 8. break
+
+Use `break` to stop a loop.
+
+```{r}
+for (score in scores) {
+
+  if (score == 92) {
+    break
+  }
+
+  print(score)
+
+}
+```
+
+# 9. next
+
+Use `next` to skip the current iteration.
+
+```{r}
+for (score in scores) {
+
+  if (score < 80) {
+    next
+  }
+
+  print(score)
+
+}
+```
+
+# 10. Apply Program Flow to Data Analysis
+
+Extract scores greater than or equal to 90.
+
+```{r}
+high_scores <- c()
+
+for (score in scores) {
+
+  if (score >= 90) {
+    high_scores <- c(high_scores, score)
+  }
+
+}
+
+high_scores
+```
+
+# 11. Compare with the Average
+
+Find scores above the average.
+
+```{r}
+average_score <- mean(scores)
+
+above_average <- c()
+
+for (score in scores) {
+
+  if (score > average_score) {
+    above_average <- c(above_average, score)
+  }
+
+}
+
+average_score
+above_average
+```
+
+# 12. Summary
+
+In this chapter, we learned:
+
+-   how to use `if`
+-   how to use `if ... else`
+-   how to use `ifelse()`
+-   how to repeat processing with `for`
+-   how to use `while`
+-   how to stop a loop with `break`
+-   how to skip an iteration with `next`
+-   how to apply program flow to simple data analysis
+
+Next chapter:
+
+**12_matrix_list_factor.Rmd**
