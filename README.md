@@ -165,9 +165,3 @@ Recommended packages:
 # Author
 
 Toshiyuki Nose
-
----
-
-# License
-
-MIT License
