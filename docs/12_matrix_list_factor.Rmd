@@ -1,0 +1,183 @@
+---
+title: "12_matrix_list_factor"
+output: html_document
+---
+
+# 1. Introduction
+
+In this chapter, we learn three additional data structures in R:
+
+- Matrix
+- List
+- Factor
+
+These structures are useful for organizing different kinds of data in analysis.
+
+# 2. Create a Matrix
+
+A matrix stores values in rows and columns.
+
+Unlike a data frame, all values in a matrix are usually the same data type.
+
+```{r}
+scores_matrix <- matrix(
+  c(85, 90, 78, 92, 88, 81),
+  nrow = 2,
+  ncol = 3,
+  byrow = TRUE
+)
+
+scores_matrix
+```
+
+# 3. Check Matrix Structure
+
+We can inspect the dimensions of a matrix.
+
+```{r}
+class(scores_matrix)
+dim(scores_matrix)
+nrow(scores_matrix)
+ncol(scores_matrix)
+```
+
+# 4. Access Matrix Elements
+
+Use `[row, column]` to access values.
+
+```{r}
+scores_matrix[1, 1]
+scores_matrix[2, 3]
+scores_matrix[1, ]
+scores_matrix[, 2]
+```
+
+# 5. Basic Matrix Calculations
+
+Functions can be applied to the entire matrix, rows, or columns.
+
+```{r}
+sum(scores_matrix)
+mean(scores_matrix)
+rowMeans(scores_matrix)
+colMeans(scores_matrix)
+```
+
+# 6. Create a List
+
+A list can store different types of objects together.
+
+```{r}
+student <- list(
+  name = "Alice",
+  age = 20,
+  scores = c(85, 90, 88)
+)
+
+student
+```
+
+# 7. Access List Elements
+
+List elements can be accessed by name or position.
+
+```{r}
+student$name
+student$age
+student$scores
+
+student[["name"]]
+student[[3]]
+```
+
+# 8. Modify a List
+
+We can add new elements or update existing values.
+
+```{r}
+student$passed <- TRUE
+student$age <- 21
+
+student
+```
+
+# 9. Create a Factor
+
+A factor represents categorical data.
+
+```{r}
+grades <- c("A", "B", "A", "C", "B", "A")
+
+grade_factor <- factor(grades)
+
+grade_factor
+class(grade_factor)
+levels(grade_factor)
+```
+
+# 10. Count Factor Levels
+
+Use `table()` to count each category.
+
+```{r}
+table(grade_factor)
+```
+
+# 11. Create an Ordered Factor
+
+Factors can also represent categories with a meaningful order.
+
+```{r}
+satisfaction <- c("Low", "High", "Medium", "High", "Low")
+
+satisfaction_factor <- factor(
+  satisfaction,
+  levels = c("Low", "Medium", "High"),
+  ordered = TRUE
+)
+
+satisfaction_factor
+levels(satisfaction_factor)
+```
+
+# 12. Convert Between Data Structures
+
+R allows us to convert data structures when needed.
+
+```{r}
+matrix_as_data_frame <- as.data.frame(scores_matrix)
+matrix_as_data_frame
+
+as.vector(scores_matrix)
+```
+
+# 13. Use Multiple Data Structures Together
+
+Lists are useful for storing different analysis results in one object.
+
+```{r}
+analysis_result <- list(
+  student = student,
+  scores = scores_matrix,
+  grades = grade_factor
+)
+
+analysis_result
+```
+
+# 14. Summary
+
+In this chapter, we learned:
+
+- how to create and inspect matrices
+- how to access rows and columns in a matrix
+- how to calculate row and column averages
+- how to create and modify lists
+- how to represent categorical data with factors
+- how to create ordered factors
+- how to convert between data structures
+- how to combine different objects in a list
+
+Next chapter:
+
+**13_string_processing.Rmd**
