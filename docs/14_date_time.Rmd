@@ -1,0 +1,285 @@
+---
+title: "14_date_time"
+output: html_document
+---
+
+# 1. Introduction
+
+Real-world datasets often contain dates and timestamps.
+
+Examples include:
+
+- Order dates
+- Registration dates
+- Update timestamps
+- Event times
+- Monthly and yearly records
+
+Date and time data is important because many analyses depend on **when** something happened.
+
+However, values such as `"2026-08-16"` may initially be stored as character data.
+
+Before time-based analysis, we often need to:
+
+- Convert text into date/time objects
+- Format dates consistently
+- Calculate differences between dates
+- Extract year, month, or weekday
+- Filter data by time periods
+
+In this chapter, we learn the basics of handling date and time data in R.
+
+# 2. Check the Current Date and Time
+
+Use `Sys.Date()` and `Sys.time()` to check the current date and time.
+
+```{r}
+Sys.Date()
+Sys.time()
+```
+
+# 3. Create Date Objects
+
+Use `as.Date()` to create a Date object.
+
+```{r}
+order_date <- as.Date("2026-08-16")
+
+order_date
+class(order_date)
+```
+
+# 4. Convert Character Data to Date
+
+Date values imported from CSV files may be stored as character data.
+
+```{r}
+date_text <- c("2026-08-01", "2026-08-05", "2026-08-10")
+
+dates <- as.Date(date_text)
+
+dates
+class(dates)
+```
+
+This conversion is important before performing date calculations.
+
+# 5. Format Dates
+
+Use `format()` to extract or change the displayed format of a date.
+
+```{r}
+format(order_date, "%Y")
+format(order_date, "%m")
+format(order_date, "%d")
+format(order_date, "%Y/%m/%d")
+format(order_date, "%A")
+```
+
+Common format codes include:
+
+- `%Y` : four-digit year
+- `%m` : month
+- `%d` : day
+- `%A` : weekday name
+
+# 6. Add and Subtract Days
+
+Date objects can be used in arithmetic operations.
+
+```{r}
+order_date + 7
+order_date - 7
+```
+
+This is useful for creating deadlines, windows, or comparison periods.
+
+# 7. Calculate Date Differences
+
+We can calculate the difference between two dates.
+
+```{r}
+start_date <- as.Date("2026-08-01")
+end_date <- as.Date("2026-08-16")
+
+end_date - start_date
+difftime(end_date, start_date, units = "days")
+```
+
+# 8. Create a Sequence of Dates
+
+Use `seq.Date()` to generate consecutive dates.
+
+```{r}
+date_sequence <- seq.Date(
+  from = as.Date("2026-08-01"),
+  to = as.Date("2026-08-07"),
+  by = "day"
+)
+
+date_sequence
+```
+
+# 9. Create Time Objects
+
+Use `as.POSIXct()` for date and time values.
+
+```{r}
+event_time <- as.POSIXct("2026-08-16 14:30:00")
+
+event_time
+class(event_time)
+```
+
+`Date` is useful when only the calendar date matters.
+
+`POSIXct` is useful when hours, minutes, and seconds are also important.
+
+# 10. Format Date and Time
+
+The `format()` function can also be used with timestamps.
+
+```{r}
+format(event_time, "%Y-%m-%d")
+format(event_time, "%H:%M:%S")
+format(event_time, "%Y-%m-%d %H:%M")
+```
+
+# 11. Convert Date Columns in a Data Frame
+
+Real-world data often contains date columns stored as character values.
+
+```{r}
+sales_data <- data.frame(
+  order_id = c(1, 2, 3, 4),
+  order_date = c("2026-08-01", "2026-08-03", "2026-08-05", "2026-08-08"),
+  sales = c(450, 300, 520, 280),
+  stringsAsFactors = FALSE
+)
+
+sales_data
+str(sales_data)
+```
+
+Convert the date column before analysis.
+
+```{r}
+sales_data$order_date <- as.Date(sales_data$order_date)
+
+sales_data
+str(sales_data)
+```
+
+# 12. Extract Time-Based Information
+
+Once the column is stored as Date, we can create useful analysis fields.
+
+```{r}
+sales_data$year <- format(sales_data$order_date, "%Y")
+sales_data$month <- format(sales_data$order_date, "%m")
+sales_data$weekday <- format(sales_data$order_date, "%A")
+
+sales_data
+```
+
+These fields can later be used for grouping and comparison.
+
+### About Weekday Names
+
+The `%A` format code returns the full weekday name for a Date value.
+
+For example:
+
+```{r}
+format(as.Date("2026-08-01"), "%A")
+```
+
+Common date format codes include:
+
+- %Y : four-digit year
+- %m : month
+- %d : day
+- %A : full weekday name
+- %a : abbreviated weekday name
+
+The weekday name returned by %A depends on the locale of the R environment.
+
+For example, the same date may be displayed as Saturday in an English locale or 土曜日 in a Japanese locale.
+
+# 13. Calculate Elapsed Days
+
+We can calculate how many days have passed since each event.
+
+```{r}
+reference_date <- as.Date("2026-08-10")
+
+sales_data$days_since_order <- as.numeric(
+  reference_date - sales_data$order_date
+)
+
+sales_data
+```
+
+# 14. Filter Data by Date
+
+Dates can be used directly in filter conditions.
+
+```{r}
+sales_data[
+  sales_data$order_date >= as.Date("2026-08-05"),
+]
+```
+
+# 15. Summarize Sales by Date
+
+Date columns can also be used as grouping fields.
+
+```{r}
+aggregate(
+  sales ~ order_date,
+  data = sales_data,
+  sum
+)
+```
+
+# 16. From Character Data to Time-Based Analysis
+
+The basic workflow in this chapter is:
+
+``` text
+Character Data
+      ↓
+Convert to Date / Time
+      ↓
+Format
+      ↓
+Extract Time Information
+      ↓
+Calculate Differences
+      ↓
+Filter and Summarize
+      ↓
+Time-Based Analysis
+```
+
+Date and time handling is therefore an important part of preparing real-world data for analysis.
+
+# 17. Summary
+
+In this chapter, we learned:
+
+- how to check the current date and time
+- how to create Date objects
+- how to convert character values to dates
+- how to format dates
+- how to add and subtract days
+- how to calculate date differences
+- how to create date sequences
+- how to create POSIXct time objects
+- how to convert date columns in a data frame
+- how to extract year, month, and weekday
+- how to filter and summarize data by date
+
+Next chapter:
+
+**15_data_manipulation_dplyr.Rmd**
