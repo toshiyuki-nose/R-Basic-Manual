@@ -1,0 +1,246 @@
+---
+title: "13_string_processing"
+output: html_document
+---
+
+# 1. Introduction
+
+Real-world data is rarely clean.
+
+Character data may contain:
+
+- Extra spaces
+- Inconsistent uppercase and lowercase letters
+- Different naming conventions
+- Unwanted characters
+- Values that do not follow the expected format
+
+Before analyzing data, we often need to validate and standardize these values.
+
+String processing is therefore an important part of **data cleaning and data management**.
+
+In this chapter, we learn basic R functions for inspecting, cleaning, searching, and transforming character data.
+
+# 2. Prepare Sample Text Data
+
+First, prepare character data that contains inconsistent formatting.
+
+```{r}
+products <- c(" Coffee ", "GREEN TEA", "bread", "Chocolate Cake ")
+
+products
+```
+
+# 3. Count Characters
+
+Use `nchar()` to count the number of characters in each value.
+
+This can also help identify unexpected values during data validation.
+
+```{r}
+nchar(products)
+```
+
+# 4. Combine Strings
+
+Use `paste()` and `paste0()` to combine character values.
+
+```{r}
+product <- "Coffee"
+region <- "Tokyo"
+
+paste(product, region)
+paste(product, region, sep = " - ")
+paste0(product, "_", region)
+```
+
+# 5. Change Letter Case
+
+Inconsistent uppercase and lowercase values can cause problems when grouping or comparing data.
+
+Use `toupper()` and `tolower()` to standardize letter case.
+
+```{r}
+toupper(products)
+tolower(products)
+```
+
+# 6. Remove Extra Spaces
+
+Extra spaces are common in imported data.
+
+Use `trimws()` to remove spaces from the beginning and end of character values.
+
+```{r}
+trimmed_products <- trimws(products)
+
+trimmed_products
+```
+
+# 7. Extract Part of a String
+
+Use `substr()` to extract part of a character value.
+
+```{r}
+substr("Chocolate Cake", 1, 9)
+substr(trimmed_products[1], 1, 3)
+```
+
+# 8. Split Strings
+
+Some datasets store multiple pieces of information in one character value.
+
+Use `strsplit()` to split the value.
+
+```{r}
+product_code <- "FOOD-COFFEE-001"
+
+strsplit(product_code, "-")
+```
+
+# 9. Replace Text
+
+Use `gsub()` to replace text patterns.
+
+```{r}
+product_names <- c("Green_Tea", "Chocolate_Cake", "Coffee")
+
+gsub("_", " ", product_names)
+```
+
+# 10. Search Text
+
+Use `grep()` to find matching values and `grepl()` to check whether each value matches a pattern.
+
+```{r}
+products_clean <- trimws(products)
+
+grep("Tea", products_clean, value = TRUE)
+grepl("Cake", products_clean)
+```
+
+# 11. Validate Character Data
+
+Validation checks whether values follow expected rules.
+
+For example, region values can be compared with a list of valid values.
+
+```{r}
+regions <- c("Tokyo", "Osaka", "Nagoya", "TOKYO", "Unknown")
+
+valid_regions <- c("Tokyo", "Osaka", "Nagoya")
+
+regions %in% valid_regions
+```
+
+Notice that `"TOKYO"` is not equal to `"Tokyo"`.
+
+This is why standardization is important before validation.
+
+# 12. Clean Character Data in a Data Frame
+
+Now apply string processing to data that resembles a real dataset.
+
+```{r}
+sales_data <- data.frame(
+  product = c(" Coffee ", "GREEN TEA", "bread", "Chocolate Cake "),
+  region = c("tokyo", "OSAKA", "Nagoya", "TOKYO"),
+  stringsAsFactors = FALSE
+)
+
+sales_data
+```
+
+Remove extra spaces and standardize letter case.
+
+```{r}
+sales_data$product <- trimws(sales_data$product)
+sales_data$product <- tolower(sales_data$product)
+
+sales_data$region <- trimws(sales_data$region)
+sales_data$region <- tolower(sales_data$region)
+
+sales_data
+```
+
+# 13. Standardize Text Values
+
+Use `tools::toTitleCase()` to make the cleaned values easier to read.
+
+```{r}
+sales_data$product <- tools::toTitleCase(sales_data$product)
+sales_data$region <- tools::toTitleCase(sales_data$region)
+
+sales_data
+```
+
+The values now follow a consistent format.
+
+# 14. Validate Cleaned Data
+
+After cleaning, validate the region values again.
+
+```{r}
+valid_regions <- c("Tokyo", "Osaka", "Nagoya")
+
+sales_data$is_valid_region <- sales_data$region %in% valid_regions
+
+sales_data
+```
+
+This creates a validation flag that can be used to identify invalid records.
+
+# 15. Create Labels from Character Data
+
+Clean character values can also be combined to create readable labels.
+
+```{r}
+sales_data$label <- paste(
+  sales_data$product,
+  sales_data$region,
+  sep = " - "
+)
+
+sales_data
+```
+
+# 16. From Raw Data to Analysis-Ready Data
+
+The basic workflow in this chapter is:
+
+``` text
+Raw Character Data
+        ↓
+Inspect
+        ↓
+Clean
+        ↓
+Standardize
+        ↓
+Validate
+        ↓
+Analysis-Ready Data
+```
+
+String processing is not only about changing text.
+
+It is an important technique for improving **data quality** before analysis.
+
+# 17. Summary
+
+In this chapter, we learned:
+
+- why character data needs validation and cleaning
+- how to count characters with `nchar()`
+- how to combine strings with `paste()` and `paste0()`
+- how to standardize letter case
+- how to remove extra spaces
+- how to extract and split strings
+- how to replace and search text
+- how to validate values against expected data
+- how to clean character columns in a data frame
+- how string processing supports data quality and data management
+
+Next chapter:
+
+**14_date_time.Rmd**
