@@ -1,0 +1,556 @@
+---
+title: "Chapter 17: Advanced ggplot2"
+output: html_document
+---
+
+# Chapter 17: Advanced ggplot2
+
+## Purpose
+
+Chapter 09 introduced the basic structure of `ggplot2`.
+
+In this chapter, we move from simply creating charts to using visualization as part of the data analysis process.
+
+The goal is not to learn every visual option available in `ggplot2`.
+
+Instead, we will learn how to make analysis results:
+
+- easier to read,
+- easier to compare,
+- easier to interpret, and
+- easier to communicate.
+
+The workflow is:
+
+**Analyze → Visualize → Compare → Customize → Communicate**
+
+------------------------------------------------------------------------
+
+## 1. Install and Load Packages
+
+This chapter uses `dplyr` for data manipulation and `ggplot2` for visualization.
+
+```{r eval=FALSE}
+install.packages("dplyr")
+install.packages("ggplot2")
+```
+
+Load the packages:
+
+```{r}
+library(dplyr)
+library(ggplot2)
+```
+
+------------------------------------------------------------------------
+
+## 2. Prepare Sample Sales Data
+
+We will use sales data containing three regions and three product categories.
+
+```{r}
+sales_data <- data.frame(
+  region = c(
+    "Tokyo", "Tokyo", "Tokyo",
+    "Osaka", "Osaka", "Osaka",
+    "Fukuoka", "Fukuoka", "Fukuoka"
+  ),
+  category = rep(c("Books", "Electronics", "Food"), 3),
+  sales = c(
+    7200, 9800, 5600,
+    6100, 11200, 4900,
+    4800, 7600, 5900
+  )
+)
+
+sales_data
+```
+
+------------------------------------------------------------------------
+
+## 3. Review the ggplot2 Structure
+
+The basic structure remains the same as Chapter 09.
+
+```{r}
+ggplot(
+  sales_data,
+  aes(x = category, y = sales)
+) +
+  geom_col()
+```
+
+The main components are:
+
+``` text
+Data
+  +
+Aesthetic mapping: aes()
+  +
+Geometry: geom_*()
+```
+
+`aes()` defines how variables are mapped to visual properties such as x position, y position, color, and fill.
+
+`geom_*()` defines how those values are displayed.
+
+------------------------------------------------------------------------
+
+## 4. Visualize Summarized Data
+
+A visualization often starts after data has been transformed or summarized.
+
+First, summarize sales by category with `dplyr`.
+
+```{r}
+category_sales <- sales_data |>
+  group_by(category) |>
+  summarise(
+    sales = sum(sales),
+    .groups = "drop"
+  )
+
+category_sales
+```
+
+Then visualize the result.
+
+```{r}
+ggplot(
+  category_sales,
+  aes(x = category, y = sales)
+) +
+  geom_col()
+```
+
+This creates an important workflow:
+
+**Raw Data → Transform / Summarize → Visualize**
+
+`dplyr` prepares the data, while `ggplot2` communicates the result.
+
+------------------------------------------------------------------------
+
+## 5. Customize Titles and Labels
+
+`labs()` adds information that helps readers understand a chart.
+
+```{r}
+ggplot(
+  category_sales,
+  aes(x = category, y = sales)
+) +
+  geom_col() +
+  labs(
+    title = "Sales by Category",
+    subtitle = "Total sales across all regions",
+    x = "Category",
+    y = "Sales"
+  )
+```
+
+A chart should provide enough context for the reader to understand what is being shown.
+
+------------------------------------------------------------------------
+
+## 6. Customize Themes
+
+Themes control the non-data appearance of a plot.
+
+For example:
+
+```{r}
+ggplot(
+  category_sales,
+  aes(x = category, y = sales)
+) +
+  geom_col() +
+  theme_minimal()
+```
+
+Another built-in theme is:
+
+```{r}
+ggplot(
+  category_sales,
+  aes(x = category, y = sales)
+) +
+  geom_col() +
+  theme_classic()
+```
+
+Individual elements can also be adjusted with `theme()`.
+
+```{r}
+ggplot(
+  category_sales,
+  aes(x = category, y = sales)
+) +
+  geom_col() +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  ) +
+  labs(title = "Sales by Category")
+```
+
+The purpose of customization is not decoration.
+
+It should improve readability and communication.
+
+------------------------------------------------------------------------
+
+## 7. Control Categories and Axes
+
+Categories are not always displayed in the most useful order.
+
+`reorder()` can order categories by a numeric value.
+
+```{r}
+ggplot(
+  category_sales,
+  aes(
+    x = reorder(category, sales),
+    y = sales
+  )
+) +
+  geom_col()
+```
+
+`coord_flip()` switches the axes.
+
+```{r}
+ggplot(
+  category_sales,
+  aes(
+    x = reorder(category, sales),
+    y = sales
+  )
+) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    title = "Sales by Category",
+    x = "Category",
+    y = "Sales"
+  ) +
+  theme_minimal()
+```
+
+Horizontal bar charts can be useful when category names are long or when ranking categories.
+
+------------------------------------------------------------------------
+
+## 8. Use Color and Fill Effectively
+
+Visual properties can represent additional variables.
+
+For a bar chart, `fill` controls the inside of the bars.
+
+```{r}
+ggplot(
+  sales_data,
+  aes(
+    x = category,
+    y = sales,
+    fill = region
+  )
+) +
+  geom_col(position = "dodge") +
+  labs(
+    title = "Sales by Category and Region",
+    x = "Category",
+    y = "Sales",
+    fill = "Region"
+  ) +
+  theme_minimal()
+```
+
+In `ggplot2`:
+
+- `color` usually controls lines and outlines.
+- `fill` usually controls filled areas such as bars.
+
+Manual scales such as `scale_fill_manual()` can be used when a specific color definition is required.
+
+Colors should help distinguish information rather than simply decorate the chart.
+
+------------------------------------------------------------------------
+
+## 9. Compare Groups with Facets
+
+Facets create separate panels for groups in the data.
+
+`facet_wrap()` is useful when one grouping variable should be displayed across multiple panels.
+
+```{r}
+ggplot(
+  sales_data,
+  aes(x = category, y = sales)
+) +
+  geom_col() +
+  facet_wrap(~ region) +
+  labs(
+    title = "Sales by Category for Each Region",
+    x = "Category",
+    y = "Sales"
+  ) +
+  theme_minimal()
+```
+
+`facet_grid()` arranges panels using a row-and-column structure.
+
+```{r}
+ggplot(
+  sales_data,
+  aes(x = category, y = sales)
+) +
+  geom_col() +
+  facet_grid(region ~ .) +
+  theme_minimal()
+```
+
+Facets are useful when we want to compare the same measurement across groups without placing everything in one chart.
+
+------------------------------------------------------------------------
+
+## 10. Add Reference and Trend Information
+
+A reference line can provide context.
+
+First calculate the average sales value.
+
+```{r}
+average_sales <- mean(sales_data$sales)
+```
+
+Then add it with `geom_hline()`.
+
+```{r}
+ggplot(
+  sales_data,
+  aes(x = category, y = sales)
+) +
+  geom_point() +
+  geom_hline(
+    yintercept = average_sales,
+    linetype = "dashed"
+  ) +
+  facet_wrap(~ region) +
+  labs(
+    title = "Sales Compared with Overall Average",
+    x = "Category",
+    y = "Sales"
+  ) +
+  theme_minimal()
+```
+
+For numeric relationships or trends, `geom_smooth()` can add a fitted line.
+
+```{r}
+trend_data <- data.frame(
+  month = 1:8,
+  sales = c(100, 120, 115, 145, 150, 165, 170, 195)
+)
+
+ggplot(
+  trend_data,
+  aes(x = month, y = sales)
+) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    title = "Sales Trend",
+    x = "Month",
+    y = "Sales"
+  ) +
+  theme_minimal()
+```
+
+A trend line can help us see a pattern, but the visual pattern alone does not prove a statistical relationship.
+
+Statistical analysis will be introduced in the next chapter.
+
+------------------------------------------------------------------------
+
+## 11. Add Text Annotations
+
+`geom_text()` can display values associated with observations.
+
+```{r}
+ggplot(
+  category_sales,
+  aes(
+    x = reorder(category, sales),
+    y = sales
+  )
+) +
+  geom_col() +
+  geom_text(
+    aes(label = sales),
+    hjust = -0.1
+  ) +
+  coord_flip() +
+  labs(
+    title = "Sales by Category",
+    x = "Category",
+    y = "Sales"
+  ) +
+  theme_minimal()
+```
+
+`annotate()` can add explanatory text at a specific position.
+
+```{r}
+ggplot(
+  trend_data,
+  aes(x = month, y = sales)
+) +
+  geom_line() +
+  geom_point() +
+  annotate(
+    "text",
+    x = 8,
+    y = 195,
+    label = "Highest sales",
+    vjust = -1
+  ) +
+  theme_minimal()
+```
+
+Annotations should highlight useful information rather than overload the chart.
+
+------------------------------------------------------------------------
+
+## 12. Save Plots
+
+A completed plot can be stored in an object.
+
+```{r}
+final_plot <- ggplot(
+  category_sales,
+  aes(
+    x = reorder(category, sales),
+    y = sales
+  )
+) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    title = "Sales by Category",
+    x = "Category",
+    y = "Sales"
+  ) +
+  theme_minimal()
+
+final_plot
+```
+
+`ggsave()` saves a plot to a file.
+
+```{r eval=FALSE}
+ggsave(
+  filename = "sales_by_category.png",
+  plot = final_plot,
+  width = 8,
+  height = 5
+)
+```
+
+This is useful when a visualization needs to be included in a report, presentation, or other output.
+
+------------------------------------------------------------------------
+
+## 13. Build an Analysis Visualization
+
+Finally, combine data manipulation and visualization.
+
+First summarize the data.
+
+```{r}
+region_category_sales <- sales_data |>
+  group_by(region, category) |>
+  summarise(
+    sales = sum(sales),
+    .groups = "drop"
+  )
+```
+
+Then create the visualization.
+
+```{r}
+analysis_plot <- ggplot(
+  region_category_sales,
+  aes(
+    x = reorder(category, sales),
+    y = sales
+  )
+) +
+  geom_col() +
+  coord_flip() +
+  facet_wrap(~ region) +
+  labs(
+    title = "Category Sales by Region",
+    subtitle = "Comparison of sales patterns across regions",
+    x = "Category",
+    y = "Sales"
+  ) +
+  theme_minimal()
+
+analysis_plot
+```
+
+The complete workflow is:
+
+``` text
+Raw Data
+    |
+    v
+Transform / Summarize
+    |
+    v
+Visualize
+    |
+    v
+Compare
+    |
+    v
+Customize
+    |
+    v
+Communicate
+```
+
+Visualization is not separate from data analysis.
+
+It is one of the ways we explore results, compare patterns, and communicate findings.
+
+------------------------------------------------------------------------
+
+## Summary
+
+In this chapter, we learned how to move beyond basic `ggplot2` charts.
+
+| Function        | Purpose                         |
+|-----------------|---------------------------------|
+| `labs()`        | Add titles and labels           |
+| `theme_*()`     | Apply a built-in theme          |
+| `theme()`       | Customize plot elements         |
+| `reorder()`     | Reorder categories              |
+| `coord_flip()`  | Flip axes                       |
+| `facet_wrap()`  | Create panels by group          |
+| `facet_grid()`  | Arrange panels in a grid        |
+| `geom_hline()`  | Add a horizontal reference line |
+| `geom_smooth()` | Add a fitted trend line         |
+| `geom_text()`   | Add labels from data            |
+| `annotate()`    | Add explanatory annotations     |
+| `ggsave()`      | Save a plot                     |
+
+The main idea is:
+
+**A good visualization should make an analysis result easier to understand.**
+
+The goal is not to add as many visual elements as possible. Each customization should have a reason.
+
+In the next chapter, we will use statistical analysis to examine relationships and differences in data more formally.

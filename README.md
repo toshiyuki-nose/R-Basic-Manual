@@ -86,18 +86,6 @@ Apply R to reporting, dashboards, and databases.
 | 23 | Built-in Datasets | ⏳ |
 | 24 | End-to-End Analysis Project | ⏳ |
 
----
-
-## Part 5. Portfolio Projects
-
-Analyze real datasets through practical case studies.
-
-| Chapter | Topic | Status |
-|---------|------|--------|
-| 25 | World Happiness Analysis | ⏳ |
-| 26 | Climate Change Analysis | ⏳ |
-| 27 | NBA Analytics | ⏳ |
-| 28 | Geopolitics Analysis | ⏳ |
 
 ---
 

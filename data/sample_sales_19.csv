@@ -1,0 +1,11 @@
+order_id,category,region,sales
+1,Books,Tokyo,2400
+2,Electronics,Tokyo,2500
+3,Food,Osaka,1500
+4,Books,Osaka,3000
+5,Electronics,Fukuoka,4500
+6,Food,Tokyo,1800
+7,Books,Fukuoka,1200
+8,Electronics,Osaka,5000
+9,Food,Fukuoka,2000
+10,Books,Tokyo,3600

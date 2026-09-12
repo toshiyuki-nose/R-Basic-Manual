@@ -1,0 +1,275 @@
+---
+title: "Chapter 15: Data Manipulation with dplyr"
+output: html_document
+---
+
+# Chapter 15: Data Manipulation with dplyr
+
+## Purpose
+
+In previous chapters, we manipulated data frames using base R.
+
+In real data analysis, we often repeat operations such as selecting columns, filtering rows, creating calculated columns, sorting data, grouping records, and calculating summaries.
+
+The `dplyr` package provides a clear and readable way to perform these operations.
+
+The goal of this chapter is not to memorize every `dplyr` function. Instead, we will learn how to combine a small set of important functions into a practical data analysis workflow.
+
+**Select / Filter → Transform → Group → Summarize → Sort**
+
+## 1. Install and Load dplyr
+
+`dplyr` is an external R package.
+
+Install it once if necessary:
+
+```{r eval=FALSE}
+install.packages("dplyr")
+```
+
+Then load it:
+
+```{r}
+library(dplyr)
+```
+
+## 2. Prepare Sample Data
+
+```{r}
+sales_data <- data.frame(
+  order_id = 1:10,
+  region = c("Tokyo","Osaka","Tokyo","Fukuoka","Osaka",
+             "Tokyo","Fukuoka","Tokyo","Osaka","Tokyo"),
+  category = c("Books","Food","Food","Books","Books",
+               "Electronics","Food","Books","Electronics","Food"),
+  product = c("Book A","Coffee","Tea","Book B","Book C",
+              "Mouse","Snack","Book D","Keyboard","Juice"),
+  price = c(1200,500,300,1500,1000,2500,400,1800,4500,600),
+  quantity = c(2,3,5,1,2,1,4,2,1,3)
+)
+sales_data
+```
+
+## 3. Select Columns
+
+`select()` chooses the columns that we want to keep.
+
+```{r}
+selected_data <- sales_data |>
+  select(order_id, region, category, price)
+selected_data
+```
+
+A similar operation with base R is:
+
+```{r}
+sales_data[c("order_id", "region", "category", "price")]
+```
+
+Both approaches are valid. `dplyr` provides syntax designed to make a sequence of data manipulation steps easy to read.
+
+## 4. Filter Rows
+
+`filter()` keeps rows that satisfy a condition.
+
+```{r}
+tokyo_sales <- sales_data |>
+  filter(region == "Tokyo")
+tokyo_sales
+```
+
+A similar operation in base R is:
+
+```{r}
+sales_data[sales_data$region == "Tokyo", ]
+```
+
+## 5. Sort Rows
+
+`arrange()` sorts rows.
+
+```{r}
+sorted_sales <- sales_data |>
+  arrange(desc(price))
+sorted_sales
+```
+
+`desc()` means descending order. Without `desc()`, values are sorted in ascending order.
+
+## 6. Create Calculated Columns
+
+`mutate()` creates or modifies columns.
+
+**Total Sales = Price × Quantity**
+
+```{r}
+sales_with_total <- sales_data |>
+  mutate(total_sales = price * quantity)
+sales_with_total
+```
+
+## 7. Summarize Data
+
+`summarise()` calculates summary values.
+
+```{r}
+sales_summary <- sales_data |>
+  summarise(
+    total_quantity = sum(quantity),
+    average_price = mean(price),
+    maximum_price = max(price)
+  )
+sales_summary
+```
+
+## 8. Group Data
+
+`group_by()` defines groups for later operations.
+
+```{r}
+grouped_sales <- sales_data |>
+  group_by(category)
+grouped_sales
+```
+
+`group_by()` by itself does not calculate a summary. It defines the groups that later operations, especially `summarise()`, should use.
+
+## 9. Group and Summarize
+
+Combining `group_by()` and `summarise()` is one of the most important patterns in `dplyr`.
+
+```{r}
+category_summary <- sales_data |>
+  mutate(total_sales = price * quantity) |>
+  group_by(category) |>
+  summarise(
+    orders = n(),
+    quantity = sum(quantity),
+    sales = sum(total_sales),
+    .groups = "drop"
+  )
+category_summary
+```
+
+Here, `n()` counts rows in each group. `.groups = "drop"` returns the result without keeping the grouping structure.
+
+## 10. Use Multiple Conditions
+
+```{r}
+filtered_sales <- sales_data |>
+  filter(
+    region %in% c("Tokyo", "Osaka"),
+    price >= 1000
+  )
+filtered_sales
+```
+
+Conditions separated by commas inside `filter()` work like AND.
+
+```{r}
+books_or_food <- sales_data |>
+  filter(category == "Books" | category == "Food")
+books_or_food
+```
+
+| Operator | Meaning |
+|---|---|
+| `&` | AND |
+| `|` | OR |
+| `!` | NOT |
+| `%in%` | Value is included in a set |
+
+## 11. Chain Operations with the Pipe
+
+The native R pipe `|>` passes the result of one operation to the next.
+
+```{r}
+tokyo_summary <- sales_data |>
+  filter(region == "Tokyo") |>
+  mutate(total_sales = price * quantity) |>
+  group_by(category) |>
+  summarise(
+    sales = sum(total_sales),
+    .groups = "drop"
+  )
+tokyo_summary
+```
+
+Read it from top to bottom:
+
+1. Start with `sales_data`.
+2. Keep Tokyo records.
+3. Calculate total sales.
+4. Group by category.
+5. Calculate sales for each category.
+
+### `|>` and `%>%`
+
+You may also see `%>%` in many R programs and tutorials. `%>%` became popular through the `magrittr` package and is widely used with `dplyr`.
+
+This manual uses the native R pipe `|>` for its main examples. Existing R code may use either form.
+
+## 12. Build a Simple Analysis Workflow
+
+Suppose we want to answer:
+
+> Which product category generates the most sales in Tokyo?
+
+```{r}
+analysis_result <- sales_data |>
+  filter(region == "Tokyo") |>
+  mutate(total_sales = price * quantity) |>
+  group_by(category) |>
+  summarise(
+    orders = n(),
+    quantity = sum(quantity),
+    sales = sum(total_sales),
+    .groups = "drop"
+  ) |>
+  arrange(desc(sales))
+analysis_result
+```
+
+The workflow is:
+
+```text
+Raw sales data
+      |
+      v
+Filter Tokyo records
+      |
+      v
+Calculate total sales
+      |
+      v
+Group by category
+      |
+      v
+Summarize each group
+      |
+      v
+Sort by sales
+      |
+      v
+Analysis result
+```
+
+## Summary
+
+| Function | Purpose |
+|---|---|
+| `select()` | Select columns |
+| `filter()` | Filter rows |
+| `arrange()` | Sort rows |
+| `mutate()` | Create or modify columns |
+| `summarise()` | Calculate summaries |
+| `group_by()` | Define groups |
+| `n()` | Count rows in a group |
+
+The main idea is:
+
+**Data manipulation is usually a sequence of small operations.**
+
+By connecting those operations into a readable workflow, we can transform raw data into analysis-ready results.
+
+In the next chapter, we will extend data manipulation to working with multiple datasets through joins and reshaping.

@@ -1,0 +1,436 @@
+---
+title: "Chapter 19: Import and Export"
+output: html_document
+---
+
+# Chapter 19: Import and Export
+
+## Purpose
+
+So far, many examples in this manual have created data directly inside R.
+
+In real data analysis, however, data usually comes from external sources such as CSV, text, or Excel files.
+
+After analysis, the results may also need to be used outside R.
+
+This chapter introduces the basic input/output workflow:
+
+**External Data → Import → Inspect → Analyze → Export**
+
+---
+
+## 1. Understand Data Input and Output
+
+Two basic operations connect R with external files.
+
+**Import** means reading data from an external file into R.
+
+**Export** means writing data or analysis results from R to an external file.
+
+For example:
+
+```text
+CSV File
+   |
+   v
+Import into R
+   |
+   v
+Analyze
+   |
+   v
+Export Result
+   |
+   v
+CSV / Excel / Text
+```
+
+Import and export make it possible to use R as one part of a larger data workflow.
+
+---
+
+## 2. Check the Working Directory
+
+R uses a working directory as the starting point for relative file paths.
+
+```{r}
+getwd()
+```
+
+This manual uses paths such as:
+
+```text
+data/sample_sales_19.csv
+output/analysis_result.csv
+```
+
+These are **relative paths**.
+
+For the examples in this chapter, run the script from the repository root so that the `data` and `output` directories can be found correctly.
+
+---
+
+## 3. Import CSV Files
+
+CSV is one of the most common formats for exchanging tabular data.
+
+Chapter 07 already used `read.csv()`. Here, we review it as part of the complete input/output workflow.
+
+```{r}
+sales_data <- read.csv(
+  "data/sample_sales_19_19.csv"
+)
+
+sales_data
+```
+
+`read.csv()` reads the file and returns a data frame.
+
+---
+
+## 4. Inspect Imported Data
+
+Importing a file successfully does not automatically mean that the data is ready for analysis.
+
+Always inspect the imported data.
+
+```{r}
+head(sales_data)
+str(sales_data)
+summary(sales_data)
+dim(sales_data)
+```
+
+These functions help answer questions such as:
+
+- Were the expected rows imported?
+- Are the column names correct?
+- Are numeric columns numeric?
+- Are there missing values?
+- Does the dataset have the expected dimensions?
+
+A useful rule is:
+
+**Import → Inspect before Analyze**
+
+---
+
+## 5. Import Text Files
+
+Delimited text files can be imported with `read.table()`.
+
+The sample file in this chapter uses tab-separated values.
+
+```{r}
+text_data <- read.table(
+  "data/sample_sales_19.txt",
+  header = TRUE,
+  sep = "\t"
+)
+
+text_data
+```
+
+Important arguments include:
+
+| Argument | Purpose |
+|---|---|
+| `header` | Whether the first row contains column names |
+| `sep` | Character used to separate fields |
+
+Different text files may use tabs, commas, spaces, or other delimiters.
+
+---
+
+## 6. Import Excel Files
+
+Excel files are common in business environments.
+
+The `readxl` package can read Excel workbooks.
+
+Install it once if necessary:
+
+```{r eval=FALSE}
+install.packages("readxl")
+```
+
+Load the package:
+
+```{r}
+library(readxl)
+```
+
+Then read an Excel file:
+
+```{r}
+excel_data <- read_excel(
+  "data/sample_sales_19.xlsx"
+)
+
+excel_data
+```
+
+`read_excel()` can read both `.xls` and `.xlsx` files.
+
+The result can then be inspected and analyzed like other tabular data in R.
+
+---
+
+## 7. Handle File Paths Safely
+
+A script should not depend unnecessarily on one person's computer.
+
+For example, this absolute path may work only on one machine:
+
+```r
+"E:/R/R-Basic-Manual/data/sample_sales_19.csv"
+```
+
+Inside a project, prefer a relative path:
+
+```{r}
+csv_path <- "data/sample_sales_19.csv"
+
+sales_from_path <- read.csv(csv_path)
+
+head(sales_from_path)
+```
+
+This makes the project easier to move to another folder or computer.
+
+A good project structure might look like:
+
+```text
+R-Basic-Manual/
+├─ data/
+│  └─ sample_sales_19.csv
+├─ scripts/
+├─ docs/
+└─ output/
+```
+
+Relative paths improve portability and reproducibility.
+
+---
+
+## 8. Export Data to CSV
+
+After analysis, results can be written to a CSV file with `write.csv()`.
+
+First, create a simple summary.
+
+```{r}
+analysis_result <- aggregate(
+  sales ~ category,
+  data = sales_data,
+  FUN = sum
+)
+
+analysis_result
+```
+
+Create the output directory if necessary.
+
+```{r}
+dir.create(
+  "output",
+  showWarnings = FALSE
+)
+```
+
+Then export the result.
+
+```{r}
+write.csv(
+  analysis_result,
+  "output/analysis_result.csv",
+  row.names = FALSE
+)
+```
+
+`row.names = FALSE` prevents R's row numbers from being written as an extra column.
+
+The exported CSV can be opened by spreadsheet software or used by another data tool.
+
+---
+
+## 9. Export Text Files
+
+`write.table()` provides more control over text output.
+
+```{r}
+write.table(
+  analysis_result,
+  "output/analysis_result.txt",
+  sep = "\t",
+  row.names = FALSE,
+  quote = FALSE
+)
+```
+
+Here:
+
+- `sep = "\t"` creates tab-separated output.
+- `row.names = FALSE` omits row numbers.
+- `quote = FALSE` avoids adding quotation marks around character values.
+
+---
+
+## 10. Export Excel Files
+
+The `writexl` package provides a simple way to create `.xlsx` files.
+
+Install it once if necessary:
+
+```{r eval=FALSE}
+install.packages("writexl")
+```
+
+Load the package:
+
+```{r}
+library(writexl)
+```
+
+Then export a data frame.
+
+```{r}
+write_xlsx(
+  analysis_result,
+  "output/analysis_result.xlsx"
+)
+```
+
+Excel output can be useful when analysis results need to be shared with users who work primarily with spreadsheets.
+
+---
+
+## 11. Save and Load R Objects
+
+Sometimes we want to preserve an R object rather than export it as a general-purpose table.
+
+`saveRDS()` saves one R object.
+
+```{r}
+saveRDS(
+  analysis_result,
+  "output/analysis_result.rds"
+)
+```
+
+Load it again with `readRDS()`.
+
+```{r}
+loaded_result <- readRDS(
+  "output/analysis_result.rds"
+)
+
+loaded_result
+```
+
+CSV and Excel are useful for exchanging tabular data with other tools.
+
+RDS is useful when an R object will be saved and reused in R.
+
+---
+
+## 12. Build a Simple Input/Output Workflow
+
+Now combine importing, validation, transformation, analysis, and exporting.
+
+Load `dplyr`.
+
+```{r}
+library(dplyr)
+```
+
+Import the data and create an analysis result.
+
+```{r}
+final_result <- read.csv(
+  "data/sample_sales_19.csv"
+) |>
+  filter(
+    !is.na(category),
+    !is.na(sales)
+  ) |>
+  group_by(category) |>
+  summarise(
+    total_sales = sum(sales),
+    average_sales = mean(sales),
+    records = n(),
+    .groups = "drop"
+  ) |>
+  arrange(desc(total_sales))
+
+final_result
+```
+
+Export the result.
+
+```{r}
+write.csv(
+  final_result,
+  "output/category_sales_summary.csv",
+  row.names = FALSE
+)
+```
+
+The complete workflow is:
+
+```text
+sample_sales_19.csv
+       |
+       v
+    Import
+       |
+       v
+    Inspect
+       |
+       v
+   Validate
+       |
+       v
+  Transform
+       |
+       v
+   Analyze
+       |
+       v
+    Export
+       |
+       v
+category_sales_summary.csv
+```
+
+The important point is that file input and output are not isolated operations.
+
+They are the beginning and end of a complete data analysis process.
+
+---
+
+## Summary
+
+In this chapter, we learned how R communicates with external files.
+
+| Function | Purpose |
+|---|---|
+| `getwd()` | Check the working directory |
+| `read.csv()` | Import CSV data |
+| `read.table()` | Import delimited text data |
+| `read_excel()` | Import Excel data |
+| `write.csv()` | Export CSV data |
+| `write.table()` | Export text data |
+| `write_xlsx()` | Export Excel data |
+| `saveRDS()` | Save an R object |
+| `readRDS()` | Load an R object |
+
+The main idea is:
+
+**External Data → Import → Inspect → Analyze → Export**
+
+File paths are also part of good project design. Relative paths help make scripts portable and reproducible.
+
+With this chapter, the Data Analysis section is complete.
+
+In the next chapter, we will begin Practical R by connecting R directly to a database.

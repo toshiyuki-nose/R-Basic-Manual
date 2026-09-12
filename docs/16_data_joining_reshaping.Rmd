@@ -1,0 +1,406 @@
+---
+title: "Chapter 16: Data Joining and Reshaping"
+output: html_document
+---
+
+# Chapter 16: Data Joining and Reshaping
+
+## Purpose
+
+Real-world data is often stored across multiple tables.
+
+For example:
+
+- sales records may contain a product ID,
+- a product master may contain product names and prices,
+- a customer master may contain customer information.
+
+Before analysis, these datasets often need to be combined.
+
+We may also need to change the shape of a dataset so that it is easier to analyze or visualize.
+
+In this chapter, we will learn how to:
+
+- join multiple datasets,
+- check unmatched records,
+- combine rows,
+- convert between wide and long formats.
+
+The main workflow is:
+
+**Join → Validate → Transform → Summarize → Reshape**
+
+---
+
+## 1. Install and Load Packages
+
+This chapter uses `dplyr` and `tidyr`.
+
+Install them once if necessary:
+
+```{r eval=FALSE}
+install.packages("dplyr")
+install.packages("tidyr")
+```
+
+Then load them:
+
+```{r}
+library(dplyr)
+library(tidyr)
+```
+
+---
+
+## 2. Prepare Sample Datasets
+
+We will use a sales table and a product master.
+
+```{r}
+sales_data <- data.frame(
+  order_id = 1:6,
+  product_id = c("P001", "P002", "P001", "P003", "P004", "P999"),
+  quantity = c(2, 1, 3, 2, 1, 4)
+)
+
+product_data <- data.frame(
+  product_id = c("P001", "P002", "P003", "P004"),
+  product_name = c("Book A", "Mouse", "Coffee", "Keyboard"),
+  category = c("Books", "Electronics", "Food", "Electronics"),
+  price = c(1200, 2500, 500, 4500)
+)
+
+sales_data
+product_data
+```
+
+Notice that `P999` exists in `sales_data`, but not in `product_data`.
+
+We will use this unmatched value later.
+
+---
+
+## 3. Understand Keys
+
+A join needs a column that connects two datasets.
+
+Here, the common column is:
+
+```text
+product_id
+```
+
+In a master table such as `product_data`, this key should normally identify each product uniquely.
+
+```{r}
+product_data$product_id
+duplicated(product_data$product_id)
+```
+
+If duplicate keys exist in a master table, a join may create unexpected duplicate rows.
+
+This is why checking keys is an important validation step.
+
+---
+
+## 4. Join Datasets with left_join()
+
+`left_join()` keeps all rows from the left dataset.
+
+```{r}
+sales_with_products <- sales_data |>
+  left_join(product_data, by = "product_id")
+
+sales_with_products
+```
+
+Because `P999` does not exist in the product master, its product information becomes `NA`.
+
+This behavior is useful when we want to keep the original transaction rows and inspect missing master data.
+
+---
+
+## 5. Join Matching Rows with inner_join()
+
+`inner_join()` keeps only rows with matching keys in both datasets.
+
+```{r}
+matched_sales <- sales_data |>
+  inner_join(product_data, by = "product_id")
+
+matched_sales
+```
+
+The row with `P999` is removed because no matching product exists.
+
+---
+
+## 6. Compare left_join() and inner_join()
+
+A simple way to understand the difference is to compare row counts.
+
+```{r}
+nrow(sales_data)
+nrow(sales_with_products)
+nrow(matched_sales)
+```
+
+In general:
+
+| Join | Result |
+|---|---|
+| `left_join()` | Keep all rows from the left table |
+| `inner_join()` | Keep only matching rows |
+
+Choosing a join type depends on the purpose of the analysis.
+
+---
+
+## 7. Join Using Different Column Names
+
+Sometimes two datasets use different names for the same key.
+
+For example:
+
+```{r}
+sales_alt <- data.frame(
+  order_id = 1:3,
+  item_code = c("P001", "P002", "P003"),
+  quantity = c(1, 2, 1)
+)
+
+sales_alt
+```
+
+The sales table uses `item_code`, while the product table uses `product_id`.
+
+We can connect them with `join_by()`.
+
+```{r}
+joined_alt <- sales_alt |>
+  left_join(
+    product_data,
+    by = join_by(item_code == product_id)
+  )
+
+joined_alt
+```
+
+This tells `dplyr` that `item_code` and `product_id` represent the same join key.
+
+---
+
+## 8. Check Unmatched Records
+
+Before continuing an analysis, it is often useful to check whether any records failed to match.
+
+`anti_join()` returns rows from the left dataset that have no match in the right dataset.
+
+```{r}
+unmatched_sales <- sales_data |>
+  anti_join(product_data, by = "product_id")
+
+unmatched_sales
+```
+
+This is useful for data validation.
+
+For example, unmatched records may indicate:
+
+- missing master data,
+- incorrect IDs,
+- old codes,
+- data entry errors.
+
+A join should not be treated only as a technical operation.  
+The result should also be validated.
+
+---
+
+## 9. Combine Rows
+
+Sometimes datasets have the same columns but contain records from different periods or sources.
+
+For example:
+
+```{r}
+sales_january <- data.frame(
+  order_id = 101:103,
+  product_id = c("P001", "P002", "P003"),
+  quantity = c(1, 2, 1)
+)
+
+sales_february <- data.frame(
+  order_id = 104:106,
+  product_id = c("P001", "P004", "P002"),
+  quantity = c(2, 1, 3)
+)
+```
+
+`bind_rows()` stacks them vertically.
+
+```{r}
+combined_sales <- bind_rows(
+  sales_january,
+  sales_february
+)
+
+combined_sales
+```
+
+This is useful when combining monthly, yearly, or partitioned files.
+
+---
+
+## 10. Understand Wide and Long Data
+
+Data can be stored in different shapes.
+
+A wide dataset may look like this:
+
+```{r}
+monthly_sales_wide <- data.frame(
+  product = c("Book", "Mouse"),
+  Jan = c(100, 80),
+  Feb = c(120, 90),
+  Mar = c(150, 110)
+)
+
+monthly_sales_wide
+```
+
+Conceptually:
+
+```text
+product  Jan  Feb  Mar
+Book     100  120  150
+Mouse     80   90  110
+```
+
+A long version contains one row per product and month:
+
+```text
+product  month  sales
+Book     Jan    100
+Book     Feb    120
+Book     Mar    150
+Mouse    Jan     80
+...
+```
+
+Long format is often easier to use for grouping, filtering, and visualization.
+
+---
+
+## 11. Convert Wide Data to Long Format
+
+`pivot_longer()` converts multiple columns into rows.
+
+```{r}
+monthly_sales_long <- monthly_sales_wide |>
+  pivot_longer(
+    cols = Jan:Mar,
+    names_to = "month",
+    values_to = "sales"
+  )
+
+monthly_sales_long
+```
+
+Here:
+
+- `cols = Jan:Mar` selects the columns to reshape.
+- `names_to = "month"` stores the original column names.
+- `values_to = "sales"` stores the values.
+
+---
+
+## 12. Convert Long Data to Wide Format
+
+`pivot_wider()` performs the opposite transformation.
+
+```{r}
+monthly_sales_wide_again <- monthly_sales_long |>
+  pivot_wider(
+    names_from = month,
+    values_from = sales
+  )
+
+monthly_sales_wide_again
+```
+
+This converts the long dataset back into a wide structure.
+
+---
+
+## 13. Build a Multi-Table Analysis Workflow
+
+Now we can combine the techniques from Chapters 15 and 16.
+
+Suppose we want to calculate sales by category.
+
+```{r}
+analysis_result <- sales_data |>
+  left_join(product_data, by = "product_id") |>
+  filter(!is.na(product_name)) |>
+  mutate(total_sales = price * quantity) |>
+  group_by(category) |>
+  summarise(
+    orders = n(),
+    quantity = sum(quantity),
+    sales = sum(total_sales),
+    .groups = "drop"
+  ) |>
+  arrange(desc(sales))
+
+analysis_result
+```
+
+The process is:
+
+```text
+Sales data
+    |
+    v
+Join product master
+    |
+    v
+Check / remove unmatched records
+    |
+    v
+Calculate total sales
+    |
+    v
+Group by category
+    |
+    v
+Summarize
+    |
+    v
+Sort results
+```
+
+This is a common pattern in real data analysis.
+
+---
+
+## Summary
+
+In this chapter, we learned:
+
+| Function | Purpose |
+|---|---|
+| `left_join()` | Keep all rows from the left dataset |
+| `inner_join()` | Keep only matching rows |
+| `anti_join()` | Find unmatched rows |
+| `bind_rows()` | Combine datasets vertically |
+| `pivot_longer()` | Convert wide data to long format |
+| `pivot_wider()` | Convert long data to wide format |
+
+The important idea is:
+
+**Joining data is not only about combining tables. It also requires validation.**
+
+After joining datasets, we should check unmatched records, duplicate keys, and the shape of the result before continuing the analysis.
+
+In the next chapter, we will build more advanced visualizations with `ggplot2`.

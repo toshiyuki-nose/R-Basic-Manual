@@ -1,0 +1,511 @@
+---
+title: "Chapter 18: Statistical Analysis"
+output: html_document
+---
+
+# Chapter 18: Statistical Analysis
+
+## Purpose
+
+Chapter 05 introduced descriptive statistics such as the mean, median, variance, and standard deviation.
+
+Chapter 17 showed how visualization can reveal patterns and differences in data.
+
+In this chapter, we take the next step and use basic statistical methods to examine those patterns more formally.
+
+The goal is not to study statistical theory in depth. Instead, we will learn how R can help us answer questions such as:
+
+- Are two numeric variables related?
+- Can one variable be used to estimate another?
+- Is there a difference between groups?
+- Are two categorical variables associated?
+
+The workflow is:
+
+**Question → Explore → Visualize → Test / Model → Interpret**
+
+---
+
+## 1. Prepare Sample Data
+
+First, create a small dataset containing advertising and sales values.
+
+```{r}
+sales_data <- data.frame(
+  advertising = c(10, 12, 15, 18, 20, 23, 25, 28, 30, 35),
+  sales = c(100, 115, 130, 145, 155, 170, 180, 195, 205, 230)
+)
+
+sales_data
+```
+
+We will also prepare score data for three groups.
+
+```{r}
+score_data <- data.frame(
+  group = c(
+    rep("A", 8),
+    rep("B", 8),
+    rep("C", 8)
+  ),
+  score = c(
+    72, 75, 78, 74, 80, 77, 76, 79,
+    82, 85, 81, 88, 84, 86, 83, 87,
+    68, 70, 72, 69, 74, 71, 73, 70
+  )
+)
+
+score_data
+```
+
+---
+
+## 2. Review Descriptive Statistics
+
+Before performing a statistical test or building a model, we should understand the data itself.
+
+```{r}
+mean(sales_data$sales)
+median(sales_data$sales)
+sd(sales_data$sales)
+summary(sales_data$sales)
+```
+
+We can also compare group averages.
+
+```{r}
+aggregate(
+  score ~ group,
+  data = score_data,
+  FUN = mean
+)
+```
+
+Descriptive statistics provide context for the analysis that follows.
+
+---
+
+## 3. Understand Correlation
+
+Correlation measures the strength and direction of a relationship between two numeric variables.
+
+```{r}
+correlation <- cor(
+  sales_data$advertising,
+  sales_data$sales
+)
+
+correlation
+```
+
+A correlation coefficient is generally between `-1` and `1`.
+
+```text
+Close to  1 : strong positive relationship
+Close to  0 : weak linear relationship
+Close to -1 : strong negative relationship
+```
+
+A positive correlation means that larger values of one variable tend to occur with larger values of the other.
+
+However:
+
+**Correlation does not necessarily mean causation.**
+
+Even when two variables are strongly correlated, this alone does not prove that one variable causes the other.
+
+---
+
+## 4. Visualize a Relationship
+
+Before interpreting a correlation value, it is useful to inspect the relationship visually.
+
+```{r}
+library(ggplot2)
+
+ggplot(
+  sales_data,
+  aes(x = advertising, y = sales)
+) +
+  geom_point() +
+  geom_smooth(
+    method = "lm",
+    se = FALSE
+  ) +
+  labs(
+    title = "Advertising and Sales",
+    x = "Advertising",
+    y = "Sales"
+  ) +
+  theme_minimal()
+```
+
+The scatter plot shows the individual observations.
+
+The fitted line helps us see the overall linear trend.
+
+Statistical values and visualizations should be interpreted together.
+
+---
+
+## 5. Build a Simple Linear Regression Model
+
+`lm()` creates a linear model.
+
+```{r}
+model <- lm(
+  sales ~ advertising,
+  data = sales_data
+)
+
+model
+```
+
+The formula:
+
+```r
+sales ~ advertising
+```
+
+can be read as:
+
+> Explain or estimate `sales` using `advertising`.
+
+In this example:
+
+- `sales` is the response variable.
+- `advertising` is the explanatory variable.
+
+The purpose here is to understand the basic structure of regression in R rather than the full mathematical theory.
+
+---
+
+## 6. Inspect a Regression Model
+
+`summary()` provides more information about the fitted model.
+
+```{r}
+summary(model)
+```
+
+The output contains several pieces of statistical information, including:
+
+- estimated coefficients,
+- residual information,
+- R-squared,
+- p-values.
+
+At this stage, focus on the overall idea:
+
+**The model describes a relationship found in the observed data.**
+
+A model should still be interpreted together with the original data, visualization, and analysis question.
+
+---
+
+## 7. Make Predictions with a Model
+
+A fitted model can be used to estimate values for new observations.
+
+```{r}
+new_data <- data.frame(
+  advertising = c(16, 22, 32)
+)
+
+predicted_sales <- predict(
+  model,
+  newdata = new_data
+)
+
+predicted_sales
+```
+
+We can combine the input and predicted values.
+
+```{r}
+prediction_result <- data.frame(
+  advertising = new_data$advertising,
+  predicted_sales = predicted_sales
+)
+
+prediction_result
+```
+
+Prediction does not mean certainty.
+
+The result is an estimate based on the fitted model and the data used to create it.
+
+---
+
+## 8. Compare Two Groups
+
+Suppose we want to compare the scores of groups A and B.
+
+First, select the two groups.
+
+```{r}
+two_group_data <- subset(
+  score_data,
+  group %in% c("A", "B")
+)
+```
+
+Then perform a t-test.
+
+```{r}
+t_test_result <- t.test(
+  score ~ group,
+  data = two_group_data
+)
+
+t_test_result
+```
+
+A t-test can be used to examine whether two groups differ in their mean values.
+
+The test result includes a p-value, which we will discuss later in this chapter.
+
+---
+
+## 9. Compare Multiple Groups
+
+When we have more than two groups, analysis of variance (ANOVA) can be used to examine whether group means differ.
+
+```{r}
+anova_model <- aov(
+  score ~ group,
+  data = score_data
+)
+
+summary(anova_model)
+```
+
+In this example, we compare groups A, B, and C.
+
+A significant ANOVA result indicates evidence that not all group means are equal.
+
+It does not, by itself, tell us exactly which groups differ from each other.
+
+---
+
+## 10. Examine Categorical Relationships
+
+Statistical analysis is not limited to numeric variables.
+
+Suppose we have device type and purchase status.
+
+```{r}
+survey_data <- data.frame(
+  device = c(
+    "PC", "PC", "PC", "PC", "PC",
+    "Mobile", "Mobile", "Mobile", "Mobile", "Mobile",
+    "Tablet", "Tablet", "Tablet", "Tablet", "Tablet"
+  ),
+  purchased = c(
+    "Yes", "Yes", "No", "Yes", "No",
+    "Yes", "No", "No", "Yes", "No",
+    "No", "No", "Yes", "No", "No"
+  )
+)
+```
+
+Create a contingency table with `table()`.
+
+```{r}
+survey_table <- table(
+  survey_data$device,
+  survey_data$purchased
+)
+
+survey_table
+```
+
+Then perform a chi-squared test.
+
+```{r}
+chi_square_result <- chisq.test(survey_table)
+
+chi_square_result
+```
+
+This test examines whether two categorical variables appear to be associated.
+
+For small datasets, R may display a warning because the expected counts are too small for the usual chi-squared approximation. This is an important reminder that statistical tests have assumptions and should not be applied mechanically.
+
+---
+
+## 11. Understand p-values
+
+Many statistical tests return a p-value.
+
+For example:
+
+```{r}
+t_test_result$p.value
+```
+
+A commonly used reference level is:
+
+```text
+p-value < 0.05
+```
+
+When the p-value is below a chosen significance level such as `0.05`, the observed result is considered statistically significant under the assumptions of the test.
+
+However, this should **not** be interpreted as:
+
+```text
+p < 0.05 = important
+p >= 0.05 = unimportant
+```
+
+A p-value does not directly tell us:
+
+- how large an effect is,
+- whether the result is practically important,
+- whether one variable causes another.
+
+It is one piece of evidence in the analysis.
+
+---
+
+## 12. Statistical and Practical Meaning
+
+Suppose a statistical test finds a difference between groups.
+
+We should still examine the actual values.
+
+```{r}
+group_summary <- aggregate(
+  score ~ group,
+  data = score_data,
+  FUN = mean
+)
+
+group_summary
+```
+
+Consider both questions:
+
+1. Is there statistical evidence of a difference?
+2. Is the size of the difference meaningful for the real problem?
+
+Statistical significance and practical importance are not the same thing.
+
+This is why interpretation is an essential part of statistical analysis.
+
+---
+
+## 13. Build a Statistical Analysis Workflow
+
+Now combine the ideas from this chapter.
+
+### Question
+
+> Is advertising associated with sales?
+
+### Step 1: Explore the data
+
+```{r}
+summary(sales_data)
+```
+
+### Step 2: Measure correlation
+
+```{r}
+cor(
+  sales_data$advertising,
+  sales_data$sales
+)
+```
+
+### Step 3: Visualize the relationship
+
+```{r}
+analysis_plot <- ggplot(
+  sales_data,
+  aes(x = advertising, y = sales)
+) +
+  geom_point() +
+  geom_smooth(
+    method = "lm",
+    se = FALSE
+  ) +
+  labs(
+    title = "Relationship between Advertising and Sales",
+    x = "Advertising",
+    y = "Sales"
+  ) +
+  theme_minimal()
+
+analysis_plot
+```
+
+### Step 4: Build and inspect a model
+
+```{r}
+analysis_model <- lm(
+  sales ~ advertising,
+  data = sales_data
+)
+
+summary(analysis_model)
+```
+
+### Step 5: Interpret
+
+Do not interpret only one number.
+
+Consider:
+
+- the original question,
+- descriptive statistics,
+- the visualization,
+- the strength of the relationship,
+- the statistical output,
+- the practical meaning.
+
+The complete workflow is:
+
+```text
+Question
+   |
+   v
+Explore Data
+   |
+   v
+Visualize
+   |
+   v
+Test / Model
+   |
+   v
+Interpret
+```
+
+---
+
+## Summary
+
+In this chapter, we learned several basic statistical tools available in R.
+
+| Function | Purpose |
+|---|---|
+| `cor()` | Measure correlation |
+| `lm()` | Build a linear regression model |
+| `summary()` | Inspect statistical output |
+| `predict()` | Make predictions from a model |
+| `t.test()` | Compare two group means |
+| `aov()` | Compare multiple group means |
+| `table()` | Create a contingency table |
+| `chisq.test()` | Examine categorical association |
+
+The main idea is:
+
+**Statistical analysis starts with a question and ends with interpretation.**
+
+A function result should not be treated as an answer by itself.
+
+Explore the data, visualize it, choose an appropriate method, and interpret the result in the context of the original question.
+
+In the next chapter, we will learn how to import data from and export analysis results to external files.
