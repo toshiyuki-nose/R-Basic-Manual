@@ -1,0 +1,563 @@
+---
+title: "Chapter 22: Shiny Basics"
+output: html_document
+---
+
+## Purpose
+
+Shiny is an R package for building interactive web applications directly with R.
+
+In Chapter 21, R Markdown turned an analysis into a reproducible report.
+
+In this chapter, Shiny makes an analysis interactive.
+
+``` text
+R Analysis
+    ↓
+  Shiny
+    ↓
+Web Application
+    ↓
+User Interaction
+```
+
+The main workflow is:
+
+**Input → Reactive Processing → Output**
+
+------------------------------------------------------------------------
+
+## 1. What Is Shiny?
+
+A normal R script runs code and produces results.
+
+A Shiny application keeps running and responds when a user changes an input.
+
+For example:
+
+``` text
+Select Region
+     ↓
+Filter Data
+     ↓
+Recalculate
+     ↓
+Update Chart and Table
+```
+
+This allows an R analysis to become an interactive application.
+
+------------------------------------------------------------------------
+
+## 2. Install and Load Shiny
+
+Install Shiny once if necessary:
+
+```{r eval=FALSE}
+install.packages("shiny")
+```
+
+Load the package:
+
+```{r}
+library(shiny)
+```
+
+------------------------------------------------------------------------
+
+## 3. Understand the Shiny Application Structure
+
+A basic Shiny application has two main parts:
+
+1.  **UI**
+2.  **Server**
+
+They are combined with `shinyApp()`.
+
+``` text
+UI
+ │
+ │ User Input
+ ↓
+Server
+ │
+ │ Processing
+ ↓
+Output
+ │
+ └────────→ UI
+```
+
+### UI
+
+The UI defines what the user sees.
+
+Examples include:
+
+- titles
+- dropdown lists
+- sliders
+- tables
+- charts
+
+### Server
+
+The server defines what the application does when inputs change.
+
+### shinyApp()
+
+`shinyApp()` combines the UI and server into one application.
+
+------------------------------------------------------------------------
+
+## 4. Create the First Shiny Application
+
+Prepare sample data:
+
+```{r}
+sales_data <- data.frame(
+  category = c(
+    "Books", "Electronics", "Food",
+    "Books", "Electronics", "Food",
+    "Books", "Electronics", "Food"
+  ),
+  region = c(
+    "Tokyo", "Tokyo", "Tokyo",
+    "Osaka", "Osaka", "Osaka",
+    "Fukuoka", "Fukuoka", "Fukuoka"
+  ),
+  sales = c(
+    2400, 2500, 1800,
+    3000, 5000, 1500,
+    1200, 4500, 2000
+  )
+)
+```
+
+A minimal UI can be defined as:
+
+```{r eval=FALSE}
+ui <- fluidPage(
+  titlePanel("My First Shiny App"),
+  textOutput("message")
+)
+```
+
+The server can create the output:
+
+```{r eval=FALSE}
+server <- function(input, output, session) {
+
+  output$message <- renderText({
+    "Hello Shiny"
+  })
+
+}
+```
+
+Finally:
+
+```{r eval=FALSE}
+shinyApp(
+  ui = ui,
+  server = server
+)
+```
+
+------------------------------------------------------------------------
+
+## 5. Add Input Controls
+
+Shiny provides controls that users can manipulate.
+
+### selectInput()
+
+A dropdown list can be created with:
+
+```{r eval=FALSE}
+selectInput(
+  "region",
+  "Region:",
+  choices = unique(sales_data$region)
+)
+```
+
+The selected value becomes available as:
+
+``` r
+input$region
+```
+
+### sliderInput()
+
+A numeric slider can be created with:
+
+```{r eval=FALSE}
+sliderInput(
+  "minimum_sales",
+  "Minimum Sales:",
+  min = min(sales_data$sales),
+  max = max(sales_data$sales),
+  value = min(sales_data$sales),
+  step = 100
+)
+```
+
+The current value becomes:
+
+``` r
+input$minimum_sales
+```
+
+------------------------------------------------------------------------
+
+## 6. Display Text Output
+
+The UI reserves a place for text:
+
+```{r eval=FALSE}
+textOutput("total_sales")
+```
+
+The server generates the text:
+
+```{r eval=FALSE}
+output$total_sales <- renderText({
+
+  total <- sum(filtered_data()$sales)
+
+  paste(
+    "Total Sales:",
+    format(total, big.mark = ",")
+  )
+
+})
+```
+
+The names must correspond:
+
+``` text
+textOutput("total_sales")
+          ↕
+output$total_sales
+```
+
+------------------------------------------------------------------------
+
+## 7. Display Tables
+
+The UI defines the output area:
+
+```{r eval=FALSE}
+tableOutput("sales_table")
+```
+
+The server provides the data:
+
+```{r eval=FALSE}
+output$sales_table <- renderTable({
+  filtered_data()
+})
+```
+
+When the filtered data changes, the table is updated automatically.
+
+------------------------------------------------------------------------
+
+## 8. Display Plots
+
+The UI creates a plot area:
+
+```{r eval=FALSE}
+plotOutput("sales_plot")
+```
+
+The server creates the plot:
+
+```{r eval=FALSE}
+output$sales_plot <- renderPlot({
+
+  data <- filtered_data()
+
+  category_summary <- aggregate(
+    sales ~ category,
+    data = data,
+    FUN = sum
+  )
+
+  barplot(
+    category_summary$sales,
+    names.arg = category_summary$category
+  )
+
+})
+```
+
+When an input changes, Shiny can redraw the plot automatically.
+
+------------------------------------------------------------------------
+
+## 9. Understand Reactive Programming
+
+Reactive programming is the central idea behind Shiny.
+
+Suppose the user changes:
+
+``` text
+Region = Tokyo
+```
+
+to:
+
+``` text
+Region = Osaka
+```
+
+Shiny detects that `input$region` changed.
+
+A reactive expression depending on that input is recalculated:
+
+```{r eval=FALSE}
+filtered_data <- reactive({
+
+  sales_data[
+    sales_data$region == input$region &
+      sales_data$sales >= input$minimum_sales,
+  ]
+
+})
+```
+
+The current value is retrieved with:
+
+``` r
+filtered_data()
+```
+
+Notice the parentheses.
+
+`filtered_data` is a reactive expression, so its value is accessed as a function-like object.
+
+The workflow becomes:
+
+``` text
+input$region
+      +
+input$minimum_sales
+        ↓
+ filtered_data()
+        ↓
+ ┌──────┼──────┐
+ ↓      ↓      ↓
+Text   Plot   Table
+```
+
+------------------------------------------------------------------------
+
+## 10. Filter Data Interactively
+
+The completed application uses two inputs:
+
+- Region
+- Minimum Sales
+
+The filter is:
+
+```{r eval=FALSE}
+sales_data[
+  sales_data$region == input$region &
+    sales_data$sales >= input$minimum_sales,
+]
+```
+
+Changing either input causes the filtered dataset to be recalculated.
+
+This is different from a normal R script because the user can change the analysis without editing the source code.
+
+------------------------------------------------------------------------
+
+## 11. Build an Interactive Sales Dashboard
+
+The completed application for this chapter is:
+
+``` text
+apps/
+└─ shiny_sales_22/
+   └─ app.R
+```
+
+It contains:
+
+``` text
+Sales Analysis Dashboard
+
+Region
+[ Tokyo ▼ ]
+
+Minimum Sales
+[----------●----------]
+
+Summary
+Total Sales: ...
+
+Sales by Category
+[Chart]
+
+Filtered Data
+[Table]
+```
+
+The application demonstrates the relationship between:
+
+- input controls
+- reactive data
+- text output
+- plots
+- tables
+
+------------------------------------------------------------------------
+
+## 12. Run the Shiny Application
+
+### Hands-on: Run This Chapter's Application
+
+Follow these steps in RStudio.
+
+#### Step 1: Open the project
+
+Open the `R-Basic-Manual` project in RStudio.
+
+The working directory should be the repository root.
+
+You can check it with:
+
+```{r eval=FALSE}
+getwd()
+```
+
+#### Step 2: Start the application
+
+Run this command in the R Console:
+
+```{r eval=FALSE}
+shiny::runApp(
+  "apps/shiny_sales_22"
+)
+```
+
+Alternatively, open:
+
+``` text
+apps/shiny_sales_22/app.R
+```
+
+and click **Run App** in RStudio.
+
+#### Step 3: Confirm that the application opens
+
+The Shiny application should appear in the RStudio Viewer or a web browser.
+
+Confirm that you can see:
+
+1.  Sales Analysis Dashboard
+2.  Region dropdown
+3.  Minimum Sales slider
+4.  Total Sales
+5.  Sales by Category chart
+6.  Filtered Data table
+
+#### Step 4: Change the region
+
+Change the Region dropdown between:
+
+``` text
+Tokyo
+Osaka
+Fukuoka
+```
+
+Confirm that:
+
+- Total Sales changes
+- the chart changes
+- the table changes
+
+#### Step 5: Change Minimum Sales
+
+Move the Minimum Sales slider.
+
+Confirm that the displayed data changes without rerunning the application manually.
+
+This behavior demonstrates Shiny's reactive programming model.
+
+#### Step 6: Stop the application
+
+When finished, click **Stop** in RStudio or press the stop button for the running R process.
+
+------------------------------------------------------------------------
+
+## 13. Understand the Shiny Workflow
+
+The completed workflow is:
+
+``` text
+User
+ ↓
+Input Controls
+ ↓
+input$region
+input$minimum_sales
+ ↓
+reactive()
+ ↓
+Filtered Data
+ ↓
+renderText()
+renderPlot()
+renderTable()
+ ↓
+Output
+ ↓
+User
+```
+
+Unlike a static report, a Shiny application remains active and responds to user actions.
+
+This is the main difference between Chapters 21 and 22:
+
+``` text
+R Markdown
+Analysis → Render → Static Report
+
+Shiny
+Analysis ↔ User Interaction
+```
+
+------------------------------------------------------------------------
+
+## Summary
+
+In this chapter, we learned the basic structure of a Shiny application.
+
+| Function        | Purpose                      |
+|-----------------|------------------------------|
+| `fluidPage()`   | Create the main UI           |
+| `titlePanel()`  | Add an application title     |
+| `selectInput()` | Create a dropdown input      |
+| `sliderInput()` | Create a numeric slider      |
+| `textOutput()`  | Define text output in the UI |
+| `renderText()`  | Generate text in the server  |
+| `tableOutput()` | Define table output          |
+| `renderTable()` | Generate a table             |
+| `plotOutput()`  | Define plot output           |
+| `renderPlot()`  | Generate a plot              |
+| `reactive()`    | Create reactive data         |
+| `shinyApp()`    | Combine UI and server        |
+
+The main idea is:
+
+**Input → Reactive Processing → Output**
+
+Shiny allows an R analysis to become an application that users can interact with.
+
+In the next chapter, we will explore R's built-in datasets and use them for analysis practice.

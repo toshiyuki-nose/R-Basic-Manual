@@ -1,0 +1,523 @@
+---
+title: "Chapter 21: R Markdown"
+output: html_document
+---
+
+## Purpose
+
+R Markdown combines explanatory text, R code, analysis results, and visualizations in one document.
+
+This makes it useful for creating **reproducible analysis reports**.
+
+The basic workflow is:
+
+``` text
+Data
+  ↓
+R Code
+  ↓
+Analysis
+  ↓
+Visualization
+  ↓
+Explanation
+  ↓
+Reproducible Report
+```
+
+------------------------------------------------------------------------
+
+## 1. What Is R Markdown?
+
+An R Markdown file uses the `.Rmd` extension.
+
+It can contain:
+
+- Markdown text
+- R code
+- R output
+- Tables
+- Charts
+
+The document can then be rendered into an output format such as HTML.
+
+``` text
+.Rmd
+ ↓
+Render
+ ↓
+HTML Report
+```
+
+The important idea is that the analysis code and the explanation live in the same source document.
+
+------------------------------------------------------------------------
+
+## 2. Understand the Structure of an Rmd File
+
+An R Markdown document usually contains three main parts:
+
+1.  YAML header
+2.  Markdown text
+3.  R code chunks
+
+### YAML Header
+
+The top of this document contains:
+
+``` yaml
+---
+title: "Chapter 21: R Markdown"
+output: html_document
+---
+```
+
+The YAML header defines document metadata and output settings.
+
+### Markdown Text
+
+Normal text is written using Markdown syntax.
+
+For example:
+
+``` markdown
+# Main Heading
+
+## Subheading
+
+This is a paragraph.
+
+- Item 1
+- Item 2
+```
+
+### R Code Chunks
+
+R code is placed inside code chunks.
+
+A chunk begins with three backticks followed by `{r}` and ends with three backticks.
+
+------------------------------------------------------------------------
+
+## 3. Create a Basic R Markdown Document
+
+A minimal R Markdown document can look like this:
+
+```` markdown
+---
+title: "My First R Markdown Report"
+output: html_document
+---
+
+# Introduction
+
+This is my first reproducible report.
+
+```{r}
+x <- c(10, 20, 30)
+mean(x)
+```
+````
+
+When rendered, the R code is executed and the result becomes part of the report.
+
+------------------------------------------------------------------------
+
+## 4. Write Headings, Paragraphs, and Lists
+
+Markdown provides a simple way to structure a report.
+
+``` markdown
+# Analysis Report
+
+## Objective
+
+Analyze sales by category.
+
+## Steps
+
+- Prepare data
+- Summarize sales
+- Visualize results
+- Interpret the output
+```
+
+This separates the explanation from the R code while keeping both in the same file.
+
+------------------------------------------------------------------------
+
+## 5. Add R Code Chunks
+
+First, load the packages used in this chapter.
+
+```{r}
+library(dplyr)
+library(ggplot2)
+```
+
+Create a small sample dataset.
+
+```{r}
+sales_data <- data.frame(
+  category = c(
+    "Books", "Electronics", "Food",
+    "Books", "Electronics", "Food",
+    "Books", "Electronics", "Food"
+  ),
+  region = c(
+    "Tokyo", "Tokyo", "Tokyo",
+    "Osaka", "Osaka", "Osaka",
+    "Fukuoka", "Fukuoka", "Fukuoka"
+  ),
+  sales = c(
+    2400, 2500, 1800,
+    3000, 5000, 1500,
+    1200, 4500, 2000
+  )
+)
+
+sales_data
+```
+
+A code chunk allows the source code and its result to appear together.
+
+------------------------------------------------------------------------
+
+## 6. Display Code Results
+
+R Markdown can display the result produced by a chunk.
+
+```{r}
+summary(sales_data)
+```
+
+We can also create an analysis result.
+
+```{r}
+category_summary <- sales_data |>
+  group_by(category) |>
+  summarise(
+    total_sales = sum(sales),
+    average_sales = mean(sales),
+    records = n(),
+    .groups = "drop"
+  ) |>
+  arrange(desc(total_sales))
+
+category_summary
+```
+
+This allows the report to be regenerated whenever the underlying code or data changes.
+
+------------------------------------------------------------------------
+
+## 7. Control Code Chunk Options
+
+Chunk options control how code and output appear in the report.
+
+### echo
+
+Show the result but hide the source code:
+
+```` markdown
+```{r echo=FALSE}
+summary(sales_data)
+```
+````
+
+### eval
+
+Show the code without executing it:
+
+```` markdown
+```{r eval=FALSE}
+print("This code is displayed but not executed.")
+```
+````
+
+### include
+
+Execute the code but hide both code and output:
+
+```` markdown
+```{r include=FALSE}
+hidden_value <- 100
+```
+````
+
+### message and warning
+
+Package startup messages and warnings can be hidden when they are not useful to the reader:
+
+```` markdown
+```{r message=FALSE, warning=FALSE}
+library(dplyr)
+```
+````
+
+Chunk options should be used deliberately. Hiding warnings is not a substitute for understanding or fixing a real problem.
+
+------------------------------------------------------------------------
+
+## 8. Add Tables to a Report
+
+A data frame printed inside a chunk becomes part of the report.
+
+```{r}
+category_summary
+```
+
+For a simple formatted table, `knitr::kable()` can be used.
+
+```{r}
+knitr::kable(
+  category_summary,
+  caption = "Sales Summary by Category"
+)
+```
+
+Tables are useful when exact values matter.
+
+------------------------------------------------------------------------
+
+## 9. Add ggplot2 Visualizations
+
+Charts created in a code chunk are included in the rendered report.
+
+```{r}
+sales_plot <- ggplot(
+  category_summary,
+  aes(
+    x = reorder(category, total_sales),
+    y = total_sales
+  )
+) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    title = "Total Sales by Category",
+    x = "Category",
+    y = "Total Sales"
+  ) +
+  theme_minimal()
+
+sales_plot
+```
+
+This connects the workflow from earlier chapters directly to reporting:
+
+**Transform → Analyze → Visualize → Explain**
+
+------------------------------------------------------------------------
+
+## 10. Use Inline R Expressions
+
+R Markdown can insert calculated values directly into sentences.
+
+First, prepare values:
+
+```{r}
+total_sales <- sum(sales_data$sales)
+top_category <- category_summary$category[1]
+```
+
+An inline expression uses this syntax:
+
+``` markdown
+`r total_sales`
+```
+
+For example, the report can contain a sentence whose values are calculated automatically from the data.
+
+If the data changes and the document is rendered again, the sentence is updated as well.
+
+This reduces the risk of manually copying an old result into the explanation.
+
+------------------------------------------------------------------------
+
+## 11. Add Report Parameters and Variables
+
+Variables can make report code easier to reuse.
+
+```{r}
+target_region <- "Tokyo"
+```
+
+Use the variable in an analysis:
+
+```{r}
+regional_sales <- sales_data |>
+  filter(region == target_region)
+
+regional_sales
+```
+
+This is a simple introduction to reusable reports.
+
+More advanced R Markdown documents can also define formal parameters in the YAML header, but this chapter focuses on the basic concept.
+
+------------------------------------------------------------------------
+
+## 12. Render an R Markdown Document
+
+An `.Rmd` file is the source document.
+
+To create the final report, the R Markdown document must be rendered into an output format such as HTML.
+
+The basic process is:
+
+``` text
+21_r_markdown.Rmd
+        ↓
+      Render
+        ↓
+Execute R code chunks
+        ↓
+Combine code, results, and Markdown
+        ↓
+21_r_markdown.html
+```
+
+### Hands-on: Render This Chapter
+
+Let's render this chapter and create an HTML report.
+
+#### Step 1: Open the R Markdown file
+
+Open the following file in RStudio:
+
+``` text
+docs/21_r_markdown.Rmd
+```
+
+#### Step 2: Render the document
+
+You can render the document in either of the following ways.
+
+**Method A: Use RStudio**
+
+Click the **Knit** button at the top of the RStudio editor.
+
+RStudio will execute the R code chunks and generate the HTML report.
+
+**Method B: Use the R Console**
+
+Run:
+
+```{r eval=FALSE}
+rmarkdown::render(
+  "docs/21_r_markdown.Rmd"
+)
+```
+
+#### Step 3: Confirm that rendering completed
+
+When rendering succeeds, the console should show a message similar to:
+
+``` text
+Output created: 21_r_markdown.html
+```
+
+The generated file will be:
+
+``` text
+docs/21_r_markdown.html
+```
+
+#### Step 4: Open the HTML report
+
+Open `21_r_markdown.html` in a web browser or the RStudio Viewer.
+
+Confirm that the report contains:
+
+1.  Headings and explanatory text
+2.  R code and execution results
+3.  The category summary
+4.  The formatted table
+5.  The "Total Sales by Category" chart
+
+If these elements are displayed correctly, the R Markdown document has been rendered successfully.
+
+### What Happens During Rendering?
+
+The process can be simplified as:
+
+``` text
+R Markdown (.Rmd)
+       ↓
+Execute R code
+       ↓
+Generate intermediate Markdown
+       ↓
+Pandoc
+       ↓
+HTML Report
+```
+
+R Markdown therefore does more than display source code.
+
+It executes the analysis and combines the results with the written explanation to create a reproducible report.
+
+> Note: The generated HTML file is an output artifact. The `.Rmd` file remains the reproducible source document.
+
+------------------------------------------------------------------------
+
+## 13. Build a Simple Analysis Report
+
+A complete analysis report usually combines several elements:
+
+``` text
+Question
+   ↓
+Data
+   ↓
+Transformation
+   ↓
+Analysis
+   ↓
+Visualization
+   ↓
+Interpretation
+   ↓
+Report
+```
+
+For this chapter, the report already contains:
+
+- sample sales data
+- a category-level summary
+- a formatted table
+- a ggplot2 chart
+- calculated values
+- explanatory text
+
+The important point is not simply that R Markdown can display R code.
+
+It allows the **analysis process and its explanation to be maintained together**.
+
+When the analysis changes, the report can be rendered again from the same source.
+
+------------------------------------------------------------------------
+
+## Summary
+
+In this chapter, we learned the basic structure and workflow of R Markdown.
+
+| Element               | Purpose                                    |
+|-----------------------|--------------------------------------------|
+| YAML                  | Define document metadata and output format |
+| Markdown              | Write explanations and structure           |
+| R code chunk          | Execute analysis code                      |
+| Chunk options         | Control code and output display            |
+| `knitr::kable()`      | Display a simple formatted table           |
+| `ggplot2`             | Include visualizations                     |
+| Inline R              | Insert calculated values into text         |
+| `rmarkdown::render()` | Generate the final report                  |
+
+The main idea is:
+
+**Code + Results + Explanation = Reproducible Report**
+
+R Markdown turns an analysis into something that can be rerun, reviewed, and communicated.
+
+In the next chapter, we will use Shiny to make R analysis interactive.

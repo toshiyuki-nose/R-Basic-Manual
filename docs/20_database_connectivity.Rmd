@@ -1,0 +1,320 @@
+---
+title: "Chapter 20: Database Connectivity"
+output: html_document
+---
+
+# Chapter 20: Database Connectivity
+
+## Purpose
+
+In Chapter 19, we imported data from files such as CSV and Excel. In real systems, data is also commonly stored in relational databases.
+
+This chapter introduces the workflow:
+
+**Connect → Query → Import → Analyze → Disconnect**
+
+We use **SQLite** so the example can run locally without configuring a separate database server.
+
+------------------------------------------------------------------------
+
+## 1. Why Connect R to a Database?
+
+A database connection lets R work directly with data stored in relational systems.
+
+``` text
+Database
+   ↓
+Connection
+   ↓
+SQL Query
+   ↓
+R Data Frame
+   ↓
+Analysis
+```
+
+------------------------------------------------------------------------
+
+## 2. Understand DBI and Database Drivers
+
+Install the packages once if necessary:
+
+```{r eval=FALSE}
+install.packages("DBI")
+install.packages("RSQLite")
+install.packages("dplyr")
+```
+
+Then load them:
+
+```{r}
+library(DBI)
+library(RSQLite)
+library(dplyr)
+```
+
+`DBI` provides a common database interface. `RSQLite` provides the SQLite driver.
+
+``` text
+R
+↓
+DBI
+↓
+Database Driver
+↓
+Database
+```
+
+------------------------------------------------------------------------
+
+## 3. Prepare a Sample Database
+
+This chapter uses:
+
+``` text
+data/sample_database_20.sqlite
+```
+
+```{r}
+database_path <- "data/sample_database_20.sqlite"
+file.exists(database_path)
+```
+
+SQLite stores the database in a file, so no separate database server is required.
+
+------------------------------------------------------------------------
+
+## 4. Create a Database Connection
+
+```{r}
+con <- dbConnect(
+  SQLite(),
+  database_path
+)
+```
+
+`con` represents the active connection.
+
+------------------------------------------------------------------------
+
+## 5. Check the Connection
+
+```{r}
+dbIsValid(con)
+dbListTables(con)
+dbListFields(con, "sales")
+```
+
+These functions help inspect the database before querying data.
+
+------------------------------------------------------------------------
+
+## 6. Read a Database Table
+
+```{r}
+sales_data <- dbReadTable(
+  con,
+  "sales"
+)
+
+head(sales_data)
+str(sales_data)
+```
+
+For small datasets, reading a complete table is convenient. For large tables, SQL can retrieve only the required data.
+
+------------------------------------------------------------------------
+
+## 7. Execute a SQL Query
+
+```{r}
+query_result <- dbGetQuery(
+  con,
+  "
+  SELECT
+      category,
+      SUM(sales) AS total_sales
+  FROM sales
+  GROUP BY category
+  ORDER BY total_sales DESC
+  "
+)
+
+query_result
+```
+
+SQL performs the aggregation in the database and returns the result to R.
+
+------------------------------------------------------------------------
+
+## 8. Filter Data with SQL
+
+```{r}
+tokyo_sales <- dbGetQuery(
+  con,
+  "
+  SELECT
+      order_id,
+      category,
+      region,
+      sales
+  FROM sales
+  WHERE region = 'Tokyo'
+  ORDER BY sales DESC
+  "
+)
+
+tokyo_sales
+```
+
+Filtering in SQL can reduce the amount of data transferred into R.
+
+------------------------------------------------------------------------
+
+## 9. Import Query Results into R
+
+```{r}
+analysis_data <- dbGetQuery(
+  con,
+  "
+  SELECT
+      category,
+      region,
+      sales
+  FROM sales
+  WHERE sales >= 2000
+  "
+)
+
+analysis_data
+```
+
+A query result becomes an R data frame.
+
+------------------------------------------------------------------------
+
+## 10. Analyze Database Data with dplyr
+
+```{r}
+analysis_summary <- analysis_data |>
+  group_by(region) |>
+  summarise(
+    total_sales = sum(sales),
+    average_sales = mean(sales),
+    records = n(),
+    .groups = "drop"
+  ) |>
+  arrange(desc(total_sales))
+
+analysis_summary
+```
+
+SQL can retrieve the required data, and R can continue the analytical workflow.
+
+------------------------------------------------------------------------
+
+## 11. Use Parameterized Queries
+
+```{r}
+region_name <- "Osaka"
+
+parameter_result <- dbGetQuery(
+  con,
+  "
+  SELECT order_id, category, region, sales
+  FROM sales
+  WHERE region = ?
+  ORDER BY sales DESC
+  ",
+  params = list(region_name)
+)
+
+parameter_result
+```
+
+The `?` is a placeholder. The value is supplied separately through `params`.
+
+This is preferable when query values come from variables or external input.
+
+------------------------------------------------------------------------
+
+## 12. Disconnect from the Database
+
+```{r}
+dbDisconnect(con)
+dbIsValid(con)
+```
+
+After disconnecting, `dbIsValid(con)` should return `FALSE`.
+
+A good habit is:
+
+**Connect → Work → Disconnect**
+
+------------------------------------------------------------------------
+
+## 13. Build a Database Analysis Workflow
+
+```{r}
+con <- dbConnect(
+  SQLite(),
+  database_path
+)
+
+final_result <- dbGetQuery(
+  con,
+  "
+  SELECT category, region, sales
+  FROM sales
+  "
+) |>
+  group_by(category) |>
+  summarise(
+    total_sales = sum(sales),
+    average_sales = mean(sales),
+    .groups = "drop"
+  ) |>
+  arrange(desc(total_sales))
+
+final_result
+
+dbDisconnect(con)
+```
+
+The complete workflow is:
+
+``` text
+sample_database_20.sqlite
+          ↓
+       Connect
+          ↓
+      SQL Query
+          ↓
+    R Data Frame
+          ↓
+       Analyze
+          ↓
+     Disconnect
+```
+
+------------------------------------------------------------------------
+
+## Summary
+
+| Function         | Purpose                          |
+|------------------|----------------------------------|
+| `dbConnect()`    | Connect to a database            |
+| `dbIsValid()`    | Check a connection               |
+| `dbListTables()` | List database tables             |
+| `dbListFields()` | List table columns               |
+| `dbReadTable()`  | Read a complete table            |
+| `dbGetQuery()`   | Execute SQL and retrieve results |
+| `dbDisconnect()` | Close a database connection      |
+
+The main idea is:
+
+**Connect → Query → Import → Analyze → Disconnect**
+
+SQL and R can be used together: SQL handles database-side retrieval and filtering, while R continues the analysis.
+
+In the next chapter, we will use R Markdown to combine code, results, and explanation in a reproducible report.
