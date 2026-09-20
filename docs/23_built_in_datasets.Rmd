@@ -1,0 +1,315 @@
+---
+title: "Chapter 23: Built-in Datasets"
+output: html_document
+---
+
+## Purpose
+
+Learn how to use **R's built-in datasets** to practice a repeatable data analysis workflow without preparing external files.
+
+The main goal is not to memorize datasets. It is to practice:
+
+**Understand → Inspect → Validate → Summarize → Visualize → Interpret**
+
+------------------------------------------------------------------------
+
+## 1. What Are Built-in Datasets?
+
+R includes datasets that can be used immediately for learning, statistics, visualization, and testing data-manipulation techniques.
+
+```{r eval=FALSE}
+data()
+```
+
+Built-in datasets let us focus on the analysis process instead of file preparation.
+
+------------------------------------------------------------------------
+
+## 2. Loading a Dataset
+
+We begin with `iris`.
+
+```{r}
+data(iris)
+head(iris)
+```
+
+------------------------------------------------------------------------
+
+## 3. Reading Dataset Documentation
+
+Before analyzing unfamiliar data, understand what it represents.
+
+```{r eval=FALSE}
+?iris
+help(iris)
+```
+
+Check what one row represents, what each variable means, the units, and which variables are numeric or categorical.
+
+A calculation can be technically correct but still misleading if the data is misunderstood.
+
+------------------------------------------------------------------------
+
+## 4. Inspecting the Data
+
+```{r}
+head(iris)
+str(iris)
+summary(iris)
+dim(iris)
+names(iris)
+```
+
+| Function    | Purpose                       |
+|-------------|-------------------------------|
+| `head()`    | Preview rows                  |
+| `str()`     | Check structure and types     |
+| `summary()` | Review descriptive statistics |
+| `dim()`     | Check rows and columns        |
+| `names()`   | Check column names            |
+
+------------------------------------------------------------------------
+
+## 5. Exploring `iris`
+
+```{r}
+unique(iris$Species)
+table(iris$Species)
+mean(iris$Sepal.Length)
+mean(iris$Petal.Length)
+range(iris$Sepal.Length)
+range(iris$Petal.Length)
+```
+
+Here we move from **inspection** toward **analysis**.
+
+------------------------------------------------------------------------
+
+## 6. Grouped Analysis with `dplyr`
+
+This revisits Chapter 15.
+
+```{r message=FALSE}
+library(dplyr)
+
+iris_summary <- iris |>
+  group_by(Species) |>
+  summarise(
+    count = n(),
+    avg_sepal_length = mean(Sepal.Length),
+    avg_sepal_width = mean(Sepal.Width),
+    avg_petal_length = mean(Petal.Length),
+    avg_petal_width = mean(Petal.Width),
+    .groups = "drop"
+  )
+
+iris_summary
+```
+
+The pattern is:
+
+**Raw observations → Grouping → Summary → Comparison**
+
+------------------------------------------------------------------------
+
+## 7. Visualizing `iris` with `ggplot2`
+
+```{r message=FALSE}
+library(ggplot2)
+
+ggplot(iris,
+       aes(x = Sepal.Length, y = Petal.Length, color = Species)) +
+  geom_point(size = 2) +
+  labs(
+    title = "Sepal Length vs Petal Length",
+    x = "Sepal Length",
+    y = "Petal Length",
+    color = "Species"
+  ) +
+  theme_minimal()
+```
+
+Ask what patterns are visible and how the species differ.
+
+------------------------------------------------------------------------
+
+## 8. Exploring `mtcars`
+
+A useful workflow should work with different datasets.
+
+```{r}
+data(mtcars)
+head(mtcars)
+str(mtcars)
+summary(mtcars)
+```
+
+Important variables include `mpg` (miles per gallon), `hp` (horsepower), and `wt` (weight in 1000 lbs).
+
+```{r}
+mtcars |>
+  select(mpg, hp, wt) |>
+  summary()
+```
+
+```{r}
+ggplot(mtcars, aes(x = wt, y = mpg)) +
+  geom_point(size = 2) +
+  labs(
+    title = "Vehicle Weight vs Fuel Economy",
+    x = "Weight (1000 lbs)",
+    y = "Miles per Gallon"
+  ) +
+  theme_minimal()
+```
+
+The dataset changes, but the basic analysis approach remains reusable.
+
+------------------------------------------------------------------------
+
+## 9. Checking Missing Values with `airquality`
+
+`airquality` gives us a simple example containing missing values.
+
+```{r}
+data(airquality)
+head(airquality)
+str(airquality)
+colSums(is.na(airquality))
+```
+
+Rows containing at least one missing value:
+
+```{r}
+rows_with_na <- airquality[!complete.cases(airquality), ]
+head(rows_with_na)
+```
+
+This connects to Chapter 8 — Data Cleaning.
+
+------------------------------------------------------------------------
+
+## 10. A Small Analysis Workflow
+
+### Step 1 — Select
+
+```{r}
+analysis_data <- iris
+```
+
+### Step 2 — Understand and inspect
+
+```{r}
+str(analysis_data)
+summary(analysis_data)
+```
+
+### Step 3 — Validate
+
+```{r}
+colSums(is.na(analysis_data))
+table(analysis_data$Species)
+```
+
+### Step 4 — Summarize
+
+```{r}
+analysis_summary <- analysis_data |>
+  group_by(Species) |>
+  summarise(
+    observations = n(),
+    mean_sepal_length = mean(Sepal.Length),
+    mean_petal_length = mean(Petal.Length),
+    .groups = "drop"
+  )
+
+analysis_summary
+```
+
+### Step 5 — Visualize
+
+```{r}
+ggplot(analysis_data,
+       aes(x = Sepal.Length, y = Petal.Length, color = Species)) +
+  geom_point() +
+  theme_minimal()
+```
+
+### Step 6 — Interpret
+
+Ask:
+
+- What patterns are visible?
+- How do the groups differ?
+- Are there missing or unusual values?
+- What additional analysis would be useful?
+
+------------------------------------------------------------------------
+
+## 11. Why Built-in Datasets Are Useful
+
+Built-in datasets are immediately available, reproducible, documented, and useful for testing new techniques.
+
+However, real projects also require importing files, validating quality, cleaning inconsistent values, transforming raw data, and communicating results.
+
+------------------------------------------------------------------------
+
+## 12. Hands-on Practice
+
+Run the companion script:
+
+``` r
+source("scripts/23_built_in_datasets.R")
+```
+
+Confirm that:
+
+1.  `iris` can be inspected.
+2.  The grouped summary contains all three species.
+3.  The `iris` scatter plot is displayed.
+4.  `mtcars` can be inspected and visualized.
+5.  Missing values are detected in `airquality`.
+6.  The final success message appears.
+
+Then choose a built-in dataset and repeat:
+
+``` text
+Understand
+    ↓
+Inspect
+    ↓
+Validate
+    ↓
+Summarize
+    ↓
+Visualize
+    ↓
+Interpret
+```
+
+------------------------------------------------------------------------
+
+## 13. Preparing for the Final Project
+
+We can now combine skills from across the manual: importing, inspection, cleaning, validation, manipulation, statistics, visualization, databases, reports, and simple interactive applications.
+
+Chapter 24 will connect the core analysis skills into one complete workflow:
+
+``` text
+Import
+   ↓
+Validate / Clean
+   ↓
+Transform
+   ↓
+Analyze
+   ↓
+Visualize
+   ↓
+Report
+```
+
+Chapter 23 uses ready-to-use datasets to practice the analytical process.
+
+**Chapter 24 will bring the complete workflow together from beginning to end.**

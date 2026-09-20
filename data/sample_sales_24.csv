@@ -1,0 +1,25 @@
+transaction_id,date,region,category,product,quantity,unit_price,sales
+T001,2026-01-05,Tokyo,Electronics,Headphones,2,4500,9000
+T002,2026-01-08, Osaka ,Books,Data Analysis Book,3,2800,8400
+T003,2026-01-15,tokyo,Food,Coffee,4,1200,4800
+T004,2026-02-03,Fukuoka,Electronics,Keyboard,2,6000,12000
+T005,2026-02-10,TOKYO,Books,R Programming Book,2,3200,6400
+T006,2026-02-18,Osaka,Food,Tea,5,900,4500
+T007,2026-03-02,Fukuoka,Books,Data Analysis Book,4,2800,11200
+T008,2026-03-12, Tokyo,Electronics,Mouse,3,2500,7500
+T009,2026-03-21,osaka,Food,Coffee,6,1200,7200
+T010,2026-04-04,Fukuoka,Electronics,Headphones,1,4500,4500
+T011,2026-04-16,Tokyo ,Books,R Programming Book,3,3200,9600
+T012,2026-04-24,OSAKA,Food,Tea,4,900,3600
+T013,2026-05-06,Fukuoka,Electronics,Keyboard,3,6000,18000
+T014,2026-05-14,Tokyo,Books,Data Analysis Book,2,2800,5600
+T015,2026-05-25,Osaka,Food,Coffee,5,1200,6000
+T016,2026-06-03,Fukuoka,Books,R Programming Book,3,3200,9600
+T017,2026-06-11,Tokyo,Electronics,Mouse,4,2500,10000
+T018,2026-06-22,Osaka,Food,Tea,,900,
+T019,2026-07-02,Fukuoka,Electronics,Headphones,2,4500,9000
+T020,2026-07-15,Tokyo,Books,Data Analysis Book,5,2800,14000
+T021,2026-07-27, Osaka,Food,Coffee,3,1200,3600
+T022,2026-08-05,Fukuoka,Electronics,Keyboard,2,6000,12000
+T023,2026-08-17,Tokyo,Books,R Programming Book,4,3200,12800
+T024,2026-08-29,Osaka,Food,Tea,6,900,5400

@@ -1,0 +1,547 @@
+---
+title: "Chapter 24: End-to-End Analysis Project"
+output: html_document
+---
+
+## Purpose
+
+This final chapter applies the skills learned throughout the R Basic Manual to one complete use case: **Retail Sales Performance Analysis**.
+
+The workflow is:
+
+**Business Question → Import → Inspect → Validate → Clean → Transform → Analyze → Visualize → Interpret → Report**
+
+------------------------------------------------------------------------
+
+## 1. Project Scenario
+
+You are responsible for analyzing transaction data for a retail company.
+
+The business wants to know:
+
+- What is the overall sales performance?
+- Which categories and regions contribute most?
+- How do sales change over time?
+- Which products perform well?
+- Is quantity related to sales?
+- Are there data-quality problems?
+
+------------------------------------------------------------------------
+
+## 2. Project Files
+
+This chapter uses:
+
+``` text
+data/sample_sales_24.csv
+scripts/24_end_to_end_analysis.R
+docs/24_end_to_end_analysis.Rmd
+```
+
+The CSV is the raw input. The `.R` file is the complete analysis script. This `.Rmd` file produces the final reproducible report.
+
+------------------------------------------------------------------------
+
+## 3. Prepare the Environment
+
+Required packages:
+
+```{r message=FALSE}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+```
+
+If a package is missing, run this in the **Console** once:
+
+``` r
+install.packages("dplyr")
+install.packages("tidyr")
+install.packages("ggplot2")
+install.packages("rmarkdown")
+```
+
+Do not place repeated `install.packages()` calls inside the analysis workflow.
+
+------------------------------------------------------------------------
+
+## 4. Hands-on: Inspect the Raw CSV
+
+Before running the analysis:
+
+1.  In RStudio's **Files** pane, open `data`.
+2.  Open `sample_sales_24.csv`.
+3.  Briefly inspect the date, region, category, quantity, price, and sales columns.
+4.  Look for blank values and inconsistent region text.
+5.  **Do not manually fix the CSV.**
+6.  Close the file without modifying it.
+
+The raw file should remain unchanged so that cleaning is reproducible.
+
+------------------------------------------------------------------------
+
+## 5. Import the CSV
+
+```{r}
+sales_raw <- read.csv(
+  "../data/sample_sales_24.csv",
+  stringsAsFactors = FALSE,
+  na.strings = c("", "NA")
+)
+
+head(sales_raw)
+```
+
+> When this R Markdown file is knitted, its working directory is normally `docs/`. Therefore the CSV path is `../data/...`. The companion R script is run from the project root and uses `data/...`.
+
+------------------------------------------------------------------------
+
+## 6. Understand and Validate the Dataset
+
+```{r}
+str(sales_raw)
+dim(sales_raw)
+names(sales_raw)
+summary(sales_raw)
+```
+
+Missing values:
+
+```{r}
+colSums(is.na(sales_raw))
+```
+
+Duplicates:
+
+```{r}
+sum(duplicated(sales_raw))
+```
+
+Check categorical values:
+
+```{r}
+unique(sales_raw$region)
+table(sales_raw$category, useNA = "ifany")
+```
+
+Notice that region values are not fully standardized.
+
+------------------------------------------------------------------------
+
+## 7. Clean the Raw Data
+
+Keep `sales_raw` unchanged and create a cleaned object.
+
+```{r}
+sales_clean <- sales_raw |>
+  mutate(
+    region = trimws(tolower(region)),
+    region = ifelse(region == "tokyo", "Tokyo",
+             ifelse(region == "osaka", "Osaka",
+             ifelse(region == "fukuoka", "Fukuoka", region))),
+    category = trimws(category),
+    product = trimws(product),
+    quantity = as.numeric(quantity),
+    unit_price = as.numeric(unit_price),
+    sales = as.numeric(sales),
+    date = as.Date(date)
+  )
+```
+
+If sales is missing but quantity and unit price exist, it can be reconstructed.
+
+```{r}
+sales_clean <- sales_clean |>
+  mutate(
+    sales = ifelse(
+      is.na(sales) & !is.na(quantity) & !is.na(unit_price),
+      quantity * unit_price,
+      sales
+    )
+  )
+```
+
+Rows that still lack essential values are excluded from analysis.
+
+```{r}
+sales_clean <- sales_clean |>
+  filter(
+    !is.na(date),
+    !is.na(quantity),
+    !is.na(unit_price),
+    !is.na(sales),
+    quantity > 0,
+    unit_price >= 0,
+    sales >= 0
+  )
+```
+
+Validate again:
+
+```{r}
+colSums(is.na(sales_clean))
+unique(sales_clean$region)
+```
+
+------------------------------------------------------------------------
+
+## 8. Transform the Data
+
+Create analysis-friendly date attributes.
+
+```{r}
+sales_clean <- sales_clean |>
+  mutate(
+    year = format(date, "%Y"),
+    month = format(date, "%Y-%m"),
+    weekday = format(date, "%A")
+  )
+
+head(sales_clean)
+```
+
+------------------------------------------------------------------------
+
+## 9. Overall Sales Performance
+
+```{r}
+kpi <- sales_clean |>
+  summarise(
+    transactions = n(),
+    total_quantity = sum(quantity),
+    total_sales = sum(sales),
+    average_sales = mean(sales),
+    median_sales = median(sales)
+  )
+
+kpi
+```
+
+------------------------------------------------------------------------
+
+## 10. Category and Regional Analysis
+
+```{r}
+category_summary <- sales_clean |>
+  group_by(category) |>
+  summarise(
+    total_sales = sum(sales),
+    average_sales = mean(sales),
+    transactions = n(),
+    .groups = "drop"
+  ) |>
+  arrange(desc(total_sales))
+
+category_summary
+```
+
+```{r}
+region_summary <- sales_clean |>
+  group_by(region) |>
+  summarise(
+    total_sales = sum(sales),
+    transactions = n(),
+    .groups = "drop"
+  ) |>
+  arrange(desc(total_sales))
+
+region_summary
+```
+
+Cross-analysis:
+
+```{r}
+region_category <- sales_clean |>
+  group_by(region, category) |>
+  summarise(total_sales = sum(sales), .groups = "drop")
+
+region_category |>
+  pivot_wider(
+    names_from = category,
+    values_from = total_sales,
+    values_fill = 0
+  )
+```
+
+------------------------------------------------------------------------
+
+## 11. Sales Trends Over Time
+
+```{r}
+monthly_summary <- sales_clean |>
+  group_by(month) |>
+  summarise(
+    total_sales = sum(sales),
+    transactions = n(),
+    .groups = "drop"
+  )
+
+monthly_summary
+```
+
+```{r}
+weekday_summary <- sales_clean |>
+  group_by(weekday) |>
+  summarise(total_sales = sum(sales), .groups = "drop") |>
+  arrange(desc(total_sales))
+
+weekday_summary
+```
+
+------------------------------------------------------------------------
+
+## 12. Product Performance
+
+```{r}
+product_summary <- sales_clean |>
+  group_by(product) |>
+  summarise(
+    total_sales = sum(sales),
+    quantity_sold = sum(quantity),
+    transactions = n(),
+    average_sales = mean(sales),
+    .groups = "drop"
+  ) |>
+  arrange(desc(total_sales))
+
+product_summary
+```
+
+------------------------------------------------------------------------
+
+## 13. Basic Statistics
+
+```{r}
+mean(sales_clean$sales)
+median(sales_clean$sales)
+sd(sales_clean$sales)
+cor(sales_clean$quantity, sales_clean$sales)
+```
+
+The correlation is descriptive evidence of association in this sample. It does not by itself establish causation.
+
+------------------------------------------------------------------------
+
+## 14. Visualize the Results
+
+### Sales by Category
+
+```{r}
+ggplot(
+  category_summary,
+  aes(x = reorder(category, total_sales), y = total_sales)
+) +
+  geom_col() +
+  coord_flip() +
+  labs(title = "Sales by Category", x = "Category", y = "Sales") +
+  theme_minimal()
+```
+
+### Sales by Region
+
+```{r}
+ggplot(
+  region_summary,
+  aes(x = reorder(region, total_sales), y = total_sales)
+) +
+  geom_col() +
+  coord_flip() +
+  labs(title = "Sales by Region", x = "Region", y = "Sales") +
+  theme_minimal()
+```
+
+### Monthly Sales Trend
+
+```{r}
+ggplot(monthly_summary, aes(x = month, y = total_sales, group = 1)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Monthly Sales Trend", x = "Month", y = "Sales") +
+  theme_minimal()
+```
+
+### Quantity vs Sales
+
+```{r message=FALSE}
+ggplot(sales_clean, aes(x = quantity, y = sales)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Quantity vs Sales", x = "Quantity", y = "Sales") +
+  theme_minimal()
+```
+
+------------------------------------------------------------------------
+
+## 15. Built-in Dataset: Reuse the Workflow
+
+Use `airquality` to confirm that the same basic approach works with another dataset.
+
+```{r}
+data(airquality)
+
+head(airquality)
+str(airquality)
+colSums(is.na(airquality))
+```
+
+```{r}
+airquality |>
+  summarise(
+    rows = n(),
+    mean_temp = mean(Temp, na.rm = TRUE),
+    mean_wind = mean(Wind, na.rm = TRUE),
+    missing_ozone = sum(is.na(Ozone))
+  )
+```
+
+The source is different, but the reasoning remains:
+
+**Understand → Inspect → Validate → Summarize → Interpret**
+
+------------------------------------------------------------------------
+
+## 16. Interpret the Results
+
+Do not stop after producing numbers and charts.
+
+Use the outputs above to answer:
+
+- What was the overall sales level?
+- Which categories contributed most?
+- How did regions differ?
+- Which months were relatively high or low?
+- Which products contributed most?
+- What data-quality issues were detected?
+- What should be investigated with a larger real-world dataset?
+
+Interpretation turns output into useful analysis.
+
+------------------------------------------------------------------------
+
+## 17. Hands-on: Run the Complete R Script
+
+1.  Save all files.
+2.  Confirm that `data/sample_sales_24.csv` exists.
+3.  Open `scripts/24_end_to_end_analysis.R` in RStudio.
+4.  Make sure the RStudio project/current working directory is the `R-Basic-Manual` root.
+5.  Click **Source** at the top of the script editor.
+
+Alternatively, from the Console run:
+
+``` r
+source("scripts/24_end_to_end_analysis.R")
+```
+
+6.  Confirm that validation results and analysis summaries appear in the Console.
+7.  Confirm that plots appear in the **Plots** pane.
+8.  Confirm that the final message appears:
+
+``` text
+24_end_to_end_analysis.R finished successfully
+```
+
+If R reports that a package is missing, install that package once with `install.packages()` and run the script again.
+
+------------------------------------------------------------------------
+
+## 18. Hands-on: Knit the Final Report
+
+1.  Open `docs/24_end_to_end_analysis.Rmd` in RStudio.
+2.  Click **Knit** at the top of the editor.
+3.  Wait for rendering to finish.
+4.  Confirm that `docs/24_end_to_end_analysis.html` is created.
+5.  Open the generated HTML.
+6.  Confirm that it contains:
+    - the project objective,
+    - raw-data inspection results,
+    - data-quality checks,
+    - cleaned-data analysis,
+    - summary tables,
+    - four sales visualizations,
+    - the built-in dataset exercise,
+    - interpretation guidance.
+
+Alternatively, from the project root run:
+
+``` r
+rmarkdown::render("docs/24_end_to_end_analysis.Rmd")
+```
+
+The HTML file is a generated artifact. The `.Rmd` file remains the reproducible source document.
+
+------------------------------------------------------------------------
+
+## 19. Hands-on: Validate Reproducibility
+
+A reproducible analysis should work without relying on objects left in the current Environment.
+
+### Test the R script
+
+1.  Save all files.
+2.  In RStudio choose **Session → Restart R**.
+3.  Confirm that previous objects are no longer being relied upon.
+4.  From the project root run:
+
+``` r
+source("scripts/24_end_to_end_analysis.R")
+```
+
+5.  Confirm the final success message.
+
+### Test the R Markdown report
+
+6.  Choose **Session → Restart R** again.
+7.  Open `docs/24_end_to_end_analysis.Rmd`.
+8.  Click **Knit**.
+9.  Confirm that the HTML report is regenerated successfully.
+10. Open the HTML and verify the tables and charts.
+
+If both tests work after restarting R, the project can reproduce its results from its source files.
+
+------------------------------------------------------------------------
+
+## 20. Review the Complete Workflow
+
+This project connected the individual skills from the manual:
+
+``` text
+Business Question
+        ↓
+     Raw CSV
+        ↓
+      Import
+        ↓
+      Inspect
+        ↓
+     Validate
+        ↓
+       Clean
+        ↓
+    Transform
+        ↓
+     Analyze
+        ↓
+   Statistics
+        ↓
+   Visualize
+        ↓
+   Interpret
+        ↓
+ R Markdown Report
+        ↓
+ Reproducibility
+```
+
+------------------------------------------------------------------------
+
+## 21. Conclusion and Next Steps
+
+The goal of this manual was not to memorize every R function.
+
+Starting with a first line of R code, we progressed toward a complete analysis workflow: importing data, checking quality, cleaning and transforming it, calculating statistics, visualizing patterns, interpreting results, and producing a reproducible report.
+
+Possible next steps include larger datasets, databases, APIs, advanced statistics, machine learning, dashboards, and real-world projects.
+
+The tools may become more advanced, but the core workflow remains familiar:
+
+**Import → Validate → Transform → Analyze → Visualize → Report**
