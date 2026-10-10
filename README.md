@@ -62,56 +62,56 @@ Each chapter contains practical materials such as:
 
 Build a foundation in R and learn the basic workflow of data analysis.
 
-  Chapter   Topic                    Status
-  --------- ------------------------ --------
-  01        Hello R                  ✅
-  02        Basic Syntax             ✅
-  03        Vectors                  ✅
-  04        Data Frame               ✅
-  05        Basic Statistics         ✅
-  06        Visualization (Base R)   ✅
-  07        Real Data Analysis       ✅
-  08        Data Cleaning            ✅
-  09        ggplot2 Basics           ✅
+| Chapter | Topic | Status |
+|---|---|---|
+| 01 | Hello R | ✅ |
+| 02 | Basic Syntax | ✅ |
+| 03 | Vectors | ✅ |
+| 04 | Data Frame | ✅ |
+| 05 | Basic Statistics | ✅ |
+| 06 | Visualization (Base R) | ✅ |
+| 07 | Real Data Analysis | ✅ |
+| 08 | Data Cleaning | ✅ |
+| 09 | ggplot2 Basics | ✅ |
 
 ## Part 2. Programming for Data Analysis
 
 Learn programming and data-handling techniques that make analysis more
 flexible and reusable.
 
-  Chapter   Topic               Status
-  --------- ------------------- --------
-  10        Functions           ✅
-  11        Data Aggregation    ✅
-  12        Apply Family        ✅
-  13        String Processing   ✅
-  14        Date and Time       ✅
+| Chapter | Topic | Status |
+|---|---|---|
+| 10 | Functions | ✅ |
+| 11 | Data Aggregation | ✅ |
+| 12 | Apply Family | ✅ |
+| 13 | String Processing | ✅ |
+| 14 | Date and Time | ✅ |
 
 ## Part 3. Data Analysis
 
 Apply R to practical data manipulation, transformation, visualization,
 statistics, and data exchange.
 
-  Chapter   Topic                          Status
-  --------- ------------------------------ --------
-  15        Data Manipulation with dplyr   ✅
-  16        Data Joining and Reshaping     ✅
-  17        Advanced ggplot2               ✅
-  18        Statistical Analysis           ✅
-  19        Import and Export              ✅
+| Chapter | Topic | Status |
+|---|---|---|
+| 15 | Data Manipulation with dplyr | ✅ |
+| 16 | Data Joining and Reshaping | ✅ |
+| 17 | Advanced ggplot2 | ✅ |
+| 18 | Statistical Analysis | ✅ |
+| 19 | Import and Export | ✅ |
 
 ## Part 4. Practical R
 
 Connect R with databases, reproducible reporting, interactive
 applications, and complete analysis workflows.
 
-  Chapter   Topic                         Status
-  --------- ----------------------------- --------
-  20        Database Connectivity         ✅
-  21        R Markdown                    ✅
-  22        Shiny Basics                  ✅
-  23        Built-in Datasets             ✅
-  24        End-to-End Analysis Project   ✅
+| Chapter | Topic | Status |
+|---|---|---|
+| 20 | Database Connectivity | ✅ |
+| 21 | R Markdown | ✅ |
+| 22 | Shiny Basics | ✅ |
+| 23 | Built-in Datasets | ✅ |
+| 24 | End-to-End Analysis Project | ✅ |
 
 ------------------------------------------------------------------------
 
